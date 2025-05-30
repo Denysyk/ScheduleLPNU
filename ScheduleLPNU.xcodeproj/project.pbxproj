@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		9AE9CB55ABBD8441611948CB /* Pods_ScheduleLPNU.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 47304C4B7347CC794D3EFF03 /* Pods_ScheduleLPNU.framework */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		89A3FC892D9563ED000C61A7 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -24,9 +28,12 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		44EC5D52CACA759AA949A5B6 /* Pods-ScheduleLPNU.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ScheduleLPNU.debug.xcconfig"; path = "Target Support Files/Pods-ScheduleLPNU/Pods-ScheduleLPNU.debug.xcconfig"; sourceTree = "<group>"; };
+		47304C4B7347CC794D3EFF03 /* Pods_ScheduleLPNU.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ScheduleLPNU.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		89A3FC722D9563EB000C61A7 /* ScheduleLPNU.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ScheduleLPNU.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		89A3FC882D9563ED000C61A7 /* ScheduleLPNUTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ScheduleLPNUTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		89A3FC922D9563ED000C61A7 /* ScheduleLPNUUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ScheduleLPNUUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		B784884CBECA99F0CD7D151A /* Pods-ScheduleLPNU.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ScheduleLPNU.release.xcconfig"; path = "Target Support Files/Pods-ScheduleLPNU/Pods-ScheduleLPNU.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -65,6 +72,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9AE9CB55ABBD8441611948CB /* Pods_ScheduleLPNU.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -92,6 +100,8 @@
 				89A3FC8B2D9563ED000C61A7 /* ScheduleLPNUTests */,
 				89A3FC952D9563ED000C61A7 /* ScheduleLPNUUITests */,
 				89A3FC732D9563EB000C61A7 /* Products */,
+				B04B8A9BD1C5F43F6BFD85AC /* Pods */,
+				BC86F1B0B23B4026B4BDAF38 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -105,6 +115,23 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		B04B8A9BD1C5F43F6BFD85AC /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				44EC5D52CACA759AA949A5B6 /* Pods-ScheduleLPNU.debug.xcconfig */,
+				B784884CBECA99F0CD7D151A /* Pods-ScheduleLPNU.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
+		BC86F1B0B23B4026B4BDAF38 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				47304C4B7347CC794D3EFF03 /* Pods_ScheduleLPNU.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -112,6 +139,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 89A3FC9B2D9563ED000C61A7 /* Build configuration list for PBXNativeTarget "ScheduleLPNU" */;
 			buildPhases = (
+				2801410A6CEB0DD1B16DE4DD /* [CP] Check Pods Manifest.lock */,
 				89A3FC6E2D9563EB000C61A7 /* Sources */,
 				89A3FC6F2D9563EB000C61A7 /* Frameworks */,
 				89A3FC702D9563EB000C61A7 /* Resources */,
@@ -124,8 +152,6 @@
 				89A3FC742D9563EB000C61A7 /* ScheduleLPNU */,
 			);
 			name = ScheduleLPNU;
-			packageProductDependencies = (
-			);
 			productName = ScheduleLPNU;
 			productReference = 89A3FC722D9563EB000C61A7 /* ScheduleLPNU.app */;
 			productType = "com.apple.product-type.application";
@@ -147,8 +173,6 @@
 				89A3FC8B2D9563ED000C61A7 /* ScheduleLPNUTests */,
 			);
 			name = ScheduleLPNUTests;
-			packageProductDependencies = (
-			);
 			productName = ScheduleLPNUTests;
 			productReference = 89A3FC882D9563ED000C61A7 /* ScheduleLPNUTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
@@ -170,8 +194,6 @@
 				89A3FC952D9563ED000C61A7 /* ScheduleLPNUUITests */,
 			);
 			name = ScheduleLPNUUITests;
-			packageProductDependencies = (
-			);
 			productName = ScheduleLPNUUITests;
 			productReference = 89A3FC922D9563ED000C61A7 /* ScheduleLPNUUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
@@ -208,6 +230,9 @@
 			);
 			mainGroup = 89A3FC692D9563EB000C61A7;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				89714A292DDB73CC00B29F8B /* XCRemoteSwiftPackageReference "SwiftSoup" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 89A3FC732D9563EB000C61A7 /* Products */;
 			projectDirPath = "";
@@ -243,6 +268,31 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		2801410A6CEB0DD1B16DE4DD /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-ScheduleLPNU-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		89A3FC6E2D9563EB000C61A7 /* Sources */ = {
@@ -284,11 +334,13 @@
 /* Begin XCBuildConfiguration section */
 		89A3FC9C2D9563ED000C61A7 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 44EC5D52CACA759AA949A5B6 /* Pods-ScheduleLPNU.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 2SN4T758G8;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ScheduleLPNU/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -296,6 +348,7 @@
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -311,11 +364,13 @@
 		};
 		89A3FC9D2D9563ED000C61A7 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = B784884CBECA99F0CD7D151A /* Pods-ScheduleLPNU.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 2SN4T758G8;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ScheduleLPNU/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -323,6 +378,7 @@
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -563,6 +619,17 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		89714A292DDB73CC00B29F8B /* XCRemoteSwiftPackageReference "SwiftSoup" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/scinfu/SwiftSoup.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.8.7;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
 	};
 	rootObject = 89A3FC6A2D9563EB000C61A7 /* Project object */;
 }

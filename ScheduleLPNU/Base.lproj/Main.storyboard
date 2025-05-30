@@ -1,24 +1,871 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13122.16" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23504" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="k9r-l9-pJ3">
+    <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13104.12"/>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23506"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--View Controller-->
+        <!--РОЗКЛАД ЛП-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController id="BYZ-38-t0r" customClass="ViewController" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="ScheduleLPNU" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" xcode11CocoaTouchSystemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                        <subviews>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="Bt9-Xe-rKk">
+                                <rect key="frame" x="0.0" y="103" width="393" height="666"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                            </tableView>
+                            <stackView opaque="NO" contentMode="center" axis="vertical" distribution="fillEqually" alignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="7ZR-5J-3Id">
+                                <rect key="frame" x="16" y="356" width="361" height="140"/>
+                                <subviews>
+                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="list.bullet" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="ks9-ZU-ZXu">
+                                        <rect key="frame" x="160.66666666666666" y="3" width="40" height="64"/>
+                                        <color key="tintColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="40" id="zvM-tW-Vqe"/>
+                                        </constraints>
+                                    </imageView>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" textAlignment="center" lineBreakMode="wordWrap" numberOfLines="0" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="qSV-JH-BYm">
+                                        <rect key="frame" x="0.0" y="70" width="361" height="70"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="70" id="kyQ-V0-4KK"/>
+                                        </constraints>
+                                        <string key="text">Список пустий
+Клікніть на кнопку Пошук, завантажте та збережіть необхідний розклад</string>
+                                        <fontDescription key="fontDescription" style="UICTFontTextStyleSubhead"/>
+                                        <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <color key="highlightedColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    </label>
+                                </subviews>
+                                <constraints>
+                                    <constraint firstItem="qSV-JH-BYm" firstAttribute="leading" secondItem="7ZR-5J-3Id" secondAttribute="leading" id="XzB-UD-Jgg"/>
+                                    <constraint firstAttribute="trailing" secondItem="qSV-JH-BYm" secondAttribute="trailing" id="ltH-bl-3Pb"/>
+                                </constraints>
+                            </stackView>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="84g-mL-sce">
+                                <rect key="frame" x="313" y="689" width="60" height="60"/>
+                                <color key="backgroundColor" red="0.27450980390000002" green="0.40000000000000002" blue="0.40000000000000002" alpha="1" colorSpace="calibratedRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="60" id="C6r-F9-H0C"/>
+                                    <constraint firstAttribute="height" constant="60" id="dFu-pC-lLY"/>
+                                </constraints>
+                                <color key="tintColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="plain" image="magnifyingglass" catalog="system" cornerStyle="fixed"/>
+                                <connections>
+                                    <segue destination="tWV-99-Nbr" kind="show" id="16C-Sf-vkN"/>
+                                </connections>
+                            </button>
+                        </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
+                        <constraints>
+                            <constraint firstItem="7ZR-5J-3Id" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="97r-U7-g1y"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="84g-mL-sce" secondAttribute="trailing" id="JA0-0W-Pin"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="84g-mL-sce" secondAttribute="trailing" constant="20" id="JfH-Ch-Omg"/>
+                            <constraint firstItem="7ZR-5J-3Id" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="Kqi-ea-LmP"/>
+                            <constraint firstItem="84g-mL-sce" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="6Tk-OE-BBY" secondAttribute="leading" symbolic="YES" id="PEl-h9-cOy"/>
+                            <constraint firstItem="7ZR-5J-3Id" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="16" id="Smb-we-S6b"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="Bt9-Xe-rKk" secondAttribute="trailing" id="WaZ-y6-HpB"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="Bt9-Xe-rKk" secondAttribute="bottom" id="Wzg-ci-Rpx"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="84g-mL-sce" secondAttribute="bottom" constant="20" id="YOk-py-AUQ"/>
+                            <constraint firstItem="Bt9-Xe-rKk" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="auO-g0-hbx"/>
+                            <constraint firstItem="Bt9-Xe-rKk" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="mpE-TS-BlD"/>
+                        </constraints>
                     </view>
+                    <navigationItem key="navigationItem" title="РОЗКЛАД ЛП" style="editor" id="BOa-XB-GbT"/>
+                    <connections>
+                        <outlet property="SearchButton" destination="84g-mL-sce" id="1a2-wY-WC0"/>
+                        <outlet property="emptyStateLabel" destination="qSV-JH-BYm" id="rC5-pv-Pl0"/>
+                        <outlet property="emptyStateView" destination="7ZR-5J-3Id" id="O4c-Jy-qzp"/>
+                        <outlet property="tableView" destination="Bt9-Xe-rKk" id="BY1-49-wAU"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
+            <point key="canvasLocation" x="3753" y="-2601"/>
+        </scene>
+        <!--ПОШУК-->
+        <scene sceneID="frP-tW-4wc">
+            <objects>
+                <viewController id="tWV-99-Nbr" customClass="SearchViewController" customModule="ScheduleLPNU" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="6U8-vF-1Jc">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <viewLayoutGuide key="safeArea" id="85q-OE-FNV"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    </view>
+                    <navigationItem key="navigationItem" title="ПОШУК" style="editor" id="KAg-F8-5Be"/>
+                    <connections>
+                        <segue destination="LKf-qH-p8P" kind="show" identifier="showStudentSchedule" id="aqy-HO-2R4"/>
+                        <segue destination="NLJ-ev-Gjc" kind="show" identifier="showStudentExams" id="eKa-Nc-OxE"/>
+                        <segue destination="SJe-Xb-SY8" kind="show" identifier="showTeacherSchedule" id="PHd-Z8-Z1I"/>
+                        <segue destination="bsg-3b-rw5" kind="show" identifier="showElectiveSchedule" id="UzO-NV-gCJ"/>
+                        <segue destination="Aqx-uU-wpy" kind="show" identifier="showTeacherExams" id="x4l-fI-aPh"/>
+                        <segue destination="lb5-Hh-SRs" kind="show" identifier="showPhdSchedule" id="OaI-aR-bIS"/>
+                        <segue destination="QVU-aZ-O92" kind="show" identifier="showExternalStudents" id="Ldi-Xz-1Ek"/>
+                        <segue destination="987-uG-7Ht" kind="show" identifier="showExternalTeachers" id="yxj-A6-3No"/>
+                        <segue destination="z69-3T-sFa" kind="show" identifier="showExternalPhd" id="kSp-bh-qmn"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Owp-Es-8LN" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="4777.8625954198469" y="-2601.4084507042253"/>
+        </scene>
+        <!--РОЗКЛАД ЕКЗАМЕНІВ ДЛЯ СТУДЕНТІВ ТА АСПІРАНТІВ-->
+        <scene sceneID="lhy-ho-UHe">
+            <objects>
+                <viewController id="NLJ-ev-Gjc" customClass="StudentExamScheduleViewController" customModule="ScheduleLPNU" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="wgW-5v-hiS">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <viewLayoutGuide key="safeArea" id="YoD-TP-AVY"/>
+                    </view>
+                    <navigationItem key="navigationItem" title="РОЗКЛАД ЕКЗАМЕНІВ ДЛЯ СТУДЕНТІВ ТА АСПІРАНТІВ" style="editor" id="dnL-ka-00I"/>
+                    <connections>
+                        <segue destination="1mq-gR-ozI" kind="show" identifier="showStudentExamResult" id="vyD-tl-zIc"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="4yz-dD-cJn" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="7923" y="-3380"/>
+        </scene>
+        <!--РОЗКЛАД ЗАНЯТЬ ДЛЯ СТУДЕНТІВ-ЗАОЧНИКІВ-->
+        <scene sceneID="pjL-9f-bJm">
+            <objects>
+                <viewController id="QVU-aZ-O92" customClass="ExternalStudentScheduleViewController" customModule="ScheduleLPNU" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="hbk-FK-ERu">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <viewLayoutGuide key="safeArea" id="X10-tu-2qU"/>
+                    </view>
+                    <navigationItem key="navigationItem" title="РОЗКЛАД ЗАНЯТЬ ДЛЯ СТУДЕНТІВ-ЗАОЧНИКІВ" style="editor" id="hbH-aE-U9B"/>
+                    <connections>
+                        <segue destination="rth-y5-a2h" kind="show" identifier="showStudentExternalResult" id="gyT-6G-10G"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="5qc-vE-od8" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="8815" y="-3380"/>
+        </scene>
+        <!--Result External Phd Student Schedule View Controller-->
+        <scene sceneID="hTG-lM-IVH">
+            <objects>
+                <viewController storyboardIdentifier="ResultExternalPhdStudentScheduleViewController" id="mD9-zG-KiQ" customClass="ResultExternalPhdStudentScheduleViewController" customModule="ScheduleLPNU" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="UHC-kH-Teu">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="zHK-fX-HTr">
+                                <rect key="frame" x="0.0" y="103" width="393" height="666"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                            </tableView>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="oyN-qJ-vPW"/>
+                        <constraints>
+                            <constraint firstItem="zHK-fX-HTr" firstAttribute="leading" secondItem="oyN-qJ-vPW" secondAttribute="leading" id="CV0-5C-8Ao"/>
+                            <constraint firstItem="oyN-qJ-vPW" firstAttribute="bottom" secondItem="zHK-fX-HTr" secondAttribute="bottom" id="SXn-BU-DsX"/>
+                            <constraint firstItem="oyN-qJ-vPW" firstAttribute="trailing" secondItem="zHK-fX-HTr" secondAttribute="trailing" id="ol6-Ss-dol"/>
+                            <constraint firstItem="zHK-fX-HTr" firstAttribute="top" secondItem="oyN-qJ-vPW" secondAttribute="top" id="y4X-2Y-Wtz"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" style="editor" id="6a9-ND-jHK"/>
+                    <connections>
+                        <outlet property="tableView" destination="zHK-fX-HTr" id="hU4-a3-m5y"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="YpH-aD-Ao1" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="9772" y="-3380"/>
+        </scene>
+        <!--РОЗКЛАД ЗАНЯТЬ З ВИБІРКОВИХ ДИСЦИПЛІН-->
+        <scene sceneID="gDq-Tr-mBO">
+            <objects>
+                <viewController id="bsg-3b-rw5" customClass="ElectiveScheduleViewController" customModule="ScheduleLPNU" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="Y5M-eU-67X">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <viewLayoutGuide key="safeArea" id="2GR-kk-iCk"/>
+                    </view>
+                    <navigationItem key="navigationItem" title="РОЗКЛАД ЗАНЯТЬ З ВИБІРКОВИХ ДИСЦИПЛІН" style="editor" id="erQ-m7-vPm"/>
+                    <connections>
+                        <segue destination="53j-Su-SkQ" kind="show" identifier="showElectiveResult" id="thp-Yc-Z6x"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="qpE-xt-Sc5" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="6146" y="-2601"/>
+        </scene>
+        <!--РОЗКЛАД ЗАНЯТЬ ДЛЯ ВИКЛАДАЧІВ ЗІ СТУДЕНТАМИ-->
+        <scene sceneID="tnL-NL-qSo">
+            <objects>
+                <viewController id="SJe-Xb-SY8" customClass="TeacherScheduleViewController" customModule="ScheduleLPNU" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="BUg-a9-9bV">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <viewLayoutGuide key="safeArea" id="etQ-Jc-0Yd"/>
+                    </view>
+                    <navigationItem key="navigationItem" title="РОЗКЛАД ЗАНЯТЬ ДЛЯ ВИКЛАДАЧІВ ЗІ СТУДЕНТАМИ" style="editor" id="Q2U-qa-ELC"/>
+                    <connections>
+                        <segue destination="COP-8V-2r9" kind="show" identifier="showTeacherScheduleResult" id="WzP-tI-y0a"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="qKL-Db-Cxk" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="7049.6183206106871" y="-2601.4084507042253"/>
+        </scene>
+        <!--Result Elective Schedule View Controller-->
+        <scene sceneID="ZAE-bz-b4d">
+            <objects>
+                <viewController storyboardIdentifier="ResultElectiveScheduleViewController" id="53j-Su-SkQ" customClass="ResultElectiveScheduleViewController" customModule="ScheduleLPNU" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="Hyu-Nd-DI7">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="b8Y-XU-Sqy">
+                                <rect key="frame" x="0.0" y="103" width="393" height="666"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                            </tableView>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="t46-wR-Flc"/>
+                        <constraints>
+                            <constraint firstItem="t46-wR-Flc" firstAttribute="trailing" secondItem="b8Y-XU-Sqy" secondAttribute="trailing" id="Ecv-sf-pYf"/>
+                            <constraint firstItem="b8Y-XU-Sqy" firstAttribute="leading" secondItem="t46-wR-Flc" secondAttribute="leading" id="nHh-bX-FVi"/>
+                            <constraint firstItem="b8Y-XU-Sqy" firstAttribute="top" secondItem="t46-wR-Flc" secondAttribute="top" id="pzA-3i-GwW"/>
+                            <constraint firstItem="t46-wR-Flc" firstAttribute="bottom" secondItem="b8Y-XU-Sqy" secondAttribute="bottom" id="yaG-wD-aOX"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" style="editor" id="raq-cu-n3K"/>
+                    <connections>
+                        <outlet property="tableView" destination="b8Y-XU-Sqy" id="PNV-QI-XSg"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="nj0-OK-0Uh" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="6146" y="-1870"/>
+        </scene>
+        <!--Result Teacher Schedule View Controller-->
+        <scene sceneID="VBt-bV-tZz">
+            <objects>
+                <viewController storyboardIdentifier="ResultTeacherScheduleViewController" id="COP-8V-2r9" customClass="ResultTeacherScheduleViewController" customModule="ScheduleLPNU" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="HKZ-57-uLu">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="r03-1O-3a2">
+                                <rect key="frame" x="0.0" y="103" width="393" height="666"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                            </tableView>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="ZhF-DT-2ph"/>
+                        <constraints>
+                            <constraint firstItem="r03-1O-3a2" firstAttribute="top" secondItem="ZhF-DT-2ph" secondAttribute="top" id="Ea2-vO-YBV"/>
+                            <constraint firstItem="ZhF-DT-2ph" firstAttribute="bottom" secondItem="r03-1O-3a2" secondAttribute="bottom" id="ak7-se-3gy"/>
+                            <constraint firstItem="ZhF-DT-2ph" firstAttribute="trailing" secondItem="r03-1O-3a2" secondAttribute="trailing" id="uCH-E6-GC2"/>
+                            <constraint firstItem="r03-1O-3a2" firstAttribute="leading" secondItem="ZhF-DT-2ph" secondAttribute="leading" id="zNF-iY-Bs9"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" style="editor" id="b5F-cb-O0H"/>
+                    <connections>
+                        <outlet property="tableView" destination="r03-1O-3a2" id="65i-Zr-8Wd"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="7Ad-ZG-74q" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="7050" y="-1870"/>
+        </scene>
+        <!--Result Phd Schedule View Controller-->
+        <scene sceneID="aGY-of-1u3">
+            <objects>
+                <viewController storyboardIdentifier="ResultPhdScheduleViewController" id="uhm-Pa-VaP" customClass="ResultPhdScheduleViewController" customModule="ScheduleLPNU" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="lwx-Rv-gHY">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="eos-gz-gtD">
+                                <rect key="frame" x="0.0" y="103" width="393" height="666"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                            </tableView>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="wSP-jX-dMA"/>
+                        <constraints>
+                            <constraint firstItem="wSP-jX-dMA" firstAttribute="bottom" secondItem="eos-gz-gtD" secondAttribute="bottom" id="ZrZ-IK-hEa"/>
+                            <constraint firstItem="eos-gz-gtD" firstAttribute="leading" secondItem="wSP-jX-dMA" secondAttribute="leading" id="fK0-ch-8C7"/>
+                            <constraint firstItem="eos-gz-gtD" firstAttribute="top" secondItem="wSP-jX-dMA" secondAttribute="top" id="lJI-gw-apl"/>
+                            <constraint firstItem="wSP-jX-dMA" firstAttribute="trailing" secondItem="eos-gz-gtD" secondAttribute="trailing" id="wu5-l7-z6f"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" style="editor" id="mmD-rT-792"/>
+                    <connections>
+                        <outlet property="tableView" destination="eos-gz-gtD" id="YkR-lH-kkp"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Rbo-tw-eiU" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="7923" y="-1870"/>
+        </scene>
+        <!--Result External Teacher Schedule View Controller-->
+        <scene sceneID="Hny-cr-62S">
+            <objects>
+                <viewController storyboardIdentifier="ResultExternalTeacherScheduleViewController" id="dR9-Ah-oII" customClass="ResultExternalTeacherScheduleViewController" customModule="ScheduleLPNU" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="1an-4M-I5S">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="Ew6-QY-Rfd">
+                                <rect key="frame" x="0.0" y="103" width="393" height="666"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                            </tableView>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="g0I-1l-Q3o"/>
+                        <constraints>
+                            <constraint firstItem="Ew6-QY-Rfd" firstAttribute="top" secondItem="g0I-1l-Q3o" secondAttribute="top" id="3l6-zj-LpE"/>
+                            <constraint firstItem="Ew6-QY-Rfd" firstAttribute="leading" secondItem="g0I-1l-Q3o" secondAttribute="leading" id="Ijc-Ha-uh7"/>
+                            <constraint firstItem="g0I-1l-Q3o" firstAttribute="trailing" secondItem="Ew6-QY-Rfd" secondAttribute="trailing" id="kTW-9R-Nrv"/>
+                            <constraint firstItem="g0I-1l-Q3o" firstAttribute="bottom" secondItem="Ew6-QY-Rfd" secondAttribute="bottom" id="s75-r6-8fb"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" style="editor" id="zIp-HJ-4yN"/>
+                    <connections>
+                        <outlet property="tableView" destination="Ew6-QY-Rfd" id="tZf-0w-SUm"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="GHe-AC-5EC" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="8815" y="-1870"/>
+        </scene>
+        <!--РОЗКЛАД ЗАНЯТЬ ДЛЯ АСПІРАНТІВ-->
+        <scene sceneID="5wu-kg-5Kn">
+            <objects>
+                <viewController id="lb5-Hh-SRs" customClass="PhdStudentScheduleViewController" customModule="ScheduleLPNU" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="d88-Es-yVn">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <viewLayoutGuide key="safeArea" id="sdr-9O-uPI"/>
+                    </view>
+                    <navigationItem key="navigationItem" title="РОЗКЛАД ЗАНЯТЬ ДЛЯ АСПІРАНТІВ" style="editor" id="xhE-a2-fGK"/>
+                    <connections>
+                        <segue destination="uhm-Pa-VaP" kind="show" identifier="showPhdResult" id="UT9-lH-QbD"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="se7-a1-pNx" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="7923" y="-2601"/>
+        </scene>
+        <!--РОЗКЛАД ЗАНЯТЬ ДЛЯ ВИКЛАДАЧІВ ЗІ СТУДЕНТАМИ-ЗАОЧНИКАМИ-->
+        <scene sceneID="RcK-m1-mha">
+            <objects>
+                <viewController id="987-uG-7Ht" customClass="ExternalTeacherScheduleViewController" customModule="ScheduleLPNU" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="FKd-xo-u0w">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <viewLayoutGuide key="safeArea" id="8gq-uJ-z1A"/>
+                    </view>
+                    <navigationItem key="navigationItem" title="РОЗКЛАД ЗАНЯТЬ ДЛЯ ВИКЛАДАЧІВ ЗІ СТУДЕНТАМИ-ЗАОЧНИКАМИ" style="editor" id="ayZ-xd-tHG"/>
+                    <connections>
+                        <segue destination="dR9-Ah-oII" kind="show" identifier="showTeacherExternalResult" id="GoO-3F-gVb"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Gm4-JX-Q6Z" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="8816" y="-2601"/>
+        </scene>
+        <!--РОЗКЛАД ЗАНЯТЬ ДЛЯ АСПІРАНТІВ-ЗАОЧНИКІВ-->
+        <scene sceneID="8GJ-Fr-f5W">
+            <objects>
+                <viewController id="z69-3T-sFa" customClass="ExternalPhdStudentScheduleViewController" customModule="ScheduleLPNU" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="SEk-Mf-R4X">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <viewLayoutGuide key="safeArea" id="oot-uq-RFx"/>
+                    </view>
+                    <navigationItem key="navigationItem" title="РОЗКЛАД ЗАНЯТЬ ДЛЯ АСПІРАНТІВ-ЗАОЧНИКІВ" style="editor" id="Z95-NZ-jGt"/>
+                    <connections>
+                        <segue destination="mD9-zG-KiQ" kind="show" identifier="showPhdStudentExternalResult" id="Rsb-ZJ-3pa"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="RZu-a2-Hwa" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="9772" y="-2601"/>
+        </scene>
+        <!--РОЗКЛАД ЕКЗАМЕНІВ ДЛЯ ВИКЛАДАЧІВ-->
+        <scene sceneID="RDW-eD-vJQ">
+            <objects>
+                <viewController id="Aqx-uU-wpy" customClass="TeacherExamScheduleViewController" customModule="ScheduleLPNU" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="ThF-9R-hiS">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <viewLayoutGuide key="safeArea" id="kte-nU-BcE"/>
+                    </view>
+                    <navigationItem key="navigationItem" title="РОЗКЛАД ЕКЗАМЕНІВ ДЛЯ ВИКЛАДАЧІВ" style="editor" id="ezX-NI-Cuq"/>
+                    <connections>
+                        <segue destination="3Vk-vB-hFU" kind="show" identifier="showTeacherExamResult" id="WZG-ke-hJM"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="BiX-2P-CyW" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="7049.6183206106871" y="-3380.2816901408451"/>
+        </scene>
+        <!--Result Student Schedule View Controller-->
+        <scene sceneID="Vw7-90-iRc">
+            <objects>
+                <viewController storyboardIdentifier="ResultStudentScheduleViewController" id="1ky-8b-YLl" customClass="ResultStudentScheduleViewController" customModule="ScheduleLPNU" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="j0T-eW-XX4">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="5BP-cO-Ewf">
+                                <rect key="frame" x="0.0" y="103" width="393" height="666"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                            </tableView>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="Ykb-CU-bqq"/>
+                        <constraints>
+                            <constraint firstItem="5BP-cO-Ewf" firstAttribute="leading" secondItem="Ykb-CU-bqq" secondAttribute="leading" id="8Mg-JQ-UWN"/>
+                            <constraint firstItem="Ykb-CU-bqq" firstAttribute="bottom" secondItem="5BP-cO-Ewf" secondAttribute="bottom" id="BKY-MG-Zgt"/>
+                            <constraint firstItem="5BP-cO-Ewf" firstAttribute="top" secondItem="Ykb-CU-bqq" secondAttribute="top" id="BRJ-Li-jIP"/>
+                            <constraint firstItem="Ykb-CU-bqq" firstAttribute="trailing" secondItem="5BP-cO-Ewf" secondAttribute="trailing" id="Xqt-T2-nQX"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" style="editor" id="g0j-bQ-hRn"/>
+                    <connections>
+                        <outlet property="tableView" destination="5BP-cO-Ewf" id="UPA-RC-rTO"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="8Z1-9h-mfw" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="6141.221374045801" y="-4090.1408450704225"/>
+        </scene>
+        <!--Result Teacher Exam Schedule View Controller-->
+        <scene sceneID="Lux-8G-xdZ">
+            <objects>
+                <viewController storyboardIdentifier="ResultTeacherExamScheduleViewController" id="3Vk-vB-hFU" customClass="ResultTeacherExamScheduleViewController" customModule="ScheduleLPNU" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="tft-ov-new">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="H6U-DM-eRc">
+                                <rect key="frame" x="0.0" y="103" width="393" height="666"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                            </tableView>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="Q08-sA-HAY"/>
+                        <constraints>
+                            <constraint firstItem="H6U-DM-eRc" firstAttribute="leading" secondItem="Q08-sA-HAY" secondAttribute="leading" id="K1G-GI-P8Z"/>
+                            <constraint firstItem="Q08-sA-HAY" firstAttribute="bottom" secondItem="H6U-DM-eRc" secondAttribute="bottom" id="Kc1-u7-6AG"/>
+                            <constraint firstItem="H6U-DM-eRc" firstAttribute="top" secondItem="Q08-sA-HAY" secondAttribute="top" id="ZvG-2a-nuT"/>
+                            <constraint firstItem="Q08-sA-HAY" firstAttribute="trailing" secondItem="H6U-DM-eRc" secondAttribute="trailing" id="dFd-es-iIf"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" style="editor" id="7rp-zw-tg8"/>
+                    <connections>
+                        <outlet property="tableView" destination="H6U-DM-eRc" id="toD-Z3-Agl"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="w0D-1O-rWX" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="7050" y="-4090"/>
+        </scene>
+        <!--Result Student Exam Schedule View Controller-->
+        <scene sceneID="qia-mm-JgT">
+            <objects>
+                <viewController storyboardIdentifier="ResultStudentExamScheduleViewController" id="1mq-gR-ozI" customClass="ResultStudentExamScheduleViewController" customModule="ScheduleLPNU" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="Xoi-Xd-OHl">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="Qbx-Bq-2T3">
+                                <rect key="frame" x="0.0" y="103" width="393" height="666"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                            </tableView>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="eB1-Q8-MzD"/>
+                        <constraints>
+                            <constraint firstItem="eB1-Q8-MzD" firstAttribute="trailing" secondItem="Qbx-Bq-2T3" secondAttribute="trailing" id="0wc-qK-FjU"/>
+                            <constraint firstItem="Qbx-Bq-2T3" firstAttribute="leading" secondItem="eB1-Q8-MzD" secondAttribute="leading" id="3eu-yb-nea"/>
+                            <constraint firstItem="eB1-Q8-MzD" firstAttribute="bottom" secondItem="Qbx-Bq-2T3" secondAttribute="bottom" id="CoR-OZ-7Ys"/>
+                            <constraint firstItem="Qbx-Bq-2T3" firstAttribute="top" secondItem="eB1-Q8-MzD" secondAttribute="top" id="gJh-Q2-UNv"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" style="editor" id="awP-Fw-qs6"/>
+                    <connections>
+                        <outlet property="tableView" destination="Qbx-Bq-2T3" id="84H-bW-F0i"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="AZH-5h-wiP" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="7923" y="-4090"/>
+        </scene>
+        <!--Result External Student Schedule View Controller-->
+        <scene sceneID="tVg-7S-oXx">
+            <objects>
+                <viewController storyboardIdentifier="ResultExternalStudentScheduleViewController" id="rth-y5-a2h" customClass="ResultExternalStudentScheduleViewController" customModule="ScheduleLPNU" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="Fmh-6c-m08">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="2nj-qc-MB7">
+                                <rect key="frame" x="0.0" y="103" width="393" height="666"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                            </tableView>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="PXv-VL-sZs"/>
+                        <constraints>
+                            <constraint firstItem="PXv-VL-sZs" firstAttribute="bottom" secondItem="2nj-qc-MB7" secondAttribute="bottom" id="R36-0a-XdG"/>
+                            <constraint firstItem="PXv-VL-sZs" firstAttribute="trailing" secondItem="2nj-qc-MB7" secondAttribute="trailing" id="Thz-R3-0At"/>
+                            <constraint firstItem="2nj-qc-MB7" firstAttribute="leading" secondItem="PXv-VL-sZs" secondAttribute="leading" id="eHj-6B-VAM"/>
+                            <constraint firstItem="2nj-qc-MB7" firstAttribute="top" secondItem="PXv-VL-sZs" secondAttribute="top" id="nK0-B0-am5"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" style="editor" id="NBX-rn-Kut"/>
+                    <connections>
+                        <outlet property="tableView" destination="2nj-qc-MB7" id="Bf4-El-Oyi"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="BbF-EY-Klt" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="8815" y="-4090"/>
+        </scene>
+        <!--РОЗКЛАД ЗАНЯТЬ ДЛЯ СТУДЕНТІВ-->
+        <scene sceneID="hUo-uX-7HF">
+            <objects>
+                <viewController id="LKf-qH-p8P" customClass="StudentScheduleViewController" customModule="ScheduleLPNU" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="Yf5-hS-yku">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <viewLayoutGuide key="safeArea" id="QNp-XC-ffi"/>
+                    </view>
+                    <navigationItem key="navigationItem" title="РОЗКЛАД ЗАНЯТЬ ДЛЯ СТУДЕНТІВ" style="editor" id="zlC-Hb-PHF"/>
+                    <connections>
+                        <segue destination="1ky-8b-YLl" kind="show" identifier="showScheduleResult" id="7DJ-h6-udc"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="8yx-Q3-2QY" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="6146" y="-3380"/>
+        </scene>
+        <!--МАПА-->
+        <scene sceneID="jx1-8d-VcO">
+            <objects>
+                <viewController id="9eL-Mo-Bje" customClass="MapViewController" customModule="ScheduleLPNU" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="GtC-Uf-5CI">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="6n1-71-8vl" customClass="MKMapView">
+                                <rect key="frame" x="0.0" y="103" width="393" height="666"/>
+                            </view>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="UzZ-Ke-Uid">
+                                <rect key="frame" x="313" y="689" width="60" height="60"/>
+                                <color key="backgroundColor" red="0.27450980390000002" green="0.40000000000000002" blue="0.40000000000000002" alpha="1" colorSpace="calibratedRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="60" id="NQx-es-AHs"/>
+                                    <constraint firstAttribute="height" constant="60" id="uP1-gw-mCt"/>
+                                </constraints>
+                                <color key="tintColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="plain" image="list.bullet" catalog="system" cornerStyle="fixed"/>
+                            </button>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="Cl7-c7-c13"/>
+                        <constraints>
+                            <constraint firstItem="6n1-71-8vl" firstAttribute="top" secondItem="Cl7-c7-c13" secondAttribute="top" id="6Uh-9K-9Su"/>
+                            <constraint firstItem="Cl7-c7-c13" firstAttribute="bottom" secondItem="6n1-71-8vl" secondAttribute="bottom" id="7Dz-4g-PFq"/>
+                            <constraint firstItem="Cl7-c7-c13" firstAttribute="trailing" secondItem="UzZ-Ke-Uid" secondAttribute="trailing" constant="20" id="Az5-FC-elu"/>
+                            <constraint firstItem="Cl7-c7-c13" firstAttribute="bottom" secondItem="UzZ-Ke-Uid" secondAttribute="bottom" constant="20" id="cBa-Bv-Uvl"/>
+                            <constraint firstItem="6n1-71-8vl" firstAttribute="leading" secondItem="Cl7-c7-c13" secondAttribute="leading" id="dPr-rK-0AZ"/>
+                            <constraint firstItem="Cl7-c7-c13" firstAttribute="trailing" secondItem="6n1-71-8vl" secondAttribute="trailing" id="oCR-3b-Yaz"/>
+                            <constraint firstItem="Cl7-c7-c13" firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="UzZ-Ke-Uid" secondAttribute="trailing" id="r0Y-Qb-lIh"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" title="МАПА" id="WSF-XJ-XaX"/>
+                    <connections>
+                        <outlet property="MapButton" destination="UzZ-Ke-Uid" id="kpV-y6-bGE"/>
+                        <outlet property="mapView" destination="6n1-71-8vl" id="Bb0-t2-iEo"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="0Ml-Ad-ySx" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="3752" y="-1009"/>
+        </scene>
+        <!--ЗАВДАННЯ-->
+        <scene sceneID="Zhc-en-6A6">
+            <objects>
+                <viewController id="H3Z-bY-M8X" customClass="TaskViewController" customModule="ScheduleLPNU" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="h3X-RE-3mI">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="xWs-7M-tS8">
+                                <rect key="frame" x="0.0" y="103" width="393" height="666"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                            </tableView>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="O1t-AR-lZS">
+                                <rect key="frame" x="313" y="689" width="60" height="60"/>
+                                <color key="backgroundColor" red="0.27450980390000002" green="0.40000000000000002" blue="0.40000000000000002" alpha="1" colorSpace="calibratedRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="60" id="kDH-kA-i09"/>
+                                    <constraint firstAttribute="width" constant="60" id="pUC-hq-2eC"/>
+                                </constraints>
+                                <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="plain" image="plus" catalog="system"/>
+                                <connections>
+                                    <action selector="addButtonTapped:" destination="H3Z-bY-M8X" eventType="touchUpInside" id="PR4-rT-ho1"/>
+                                </connections>
+                            </button>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="AqR-Bs-MGw">
+                                <rect key="frame" x="46.666666666666657" y="326" width="300" height="200"/>
+                                <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Список завдань пустий" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Llc-Cn-qte">
+                                        <rect key="frame" x="20" y="90" width="260" height="20.333333333333329"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                </subviews>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <constraints>
+                                    <constraint firstItem="Llc-Cn-qte" firstAttribute="leading" secondItem="AqR-Bs-MGw" secondAttribute="leading" constant="20" id="FMk-B1-7qm"/>
+                                    <constraint firstItem="Llc-Cn-qte" firstAttribute="centerX" secondItem="AqR-Bs-MGw" secondAttribute="centerX" id="GtC-FD-ReC"/>
+                                    <constraint firstAttribute="trailing" secondItem="Llc-Cn-qte" secondAttribute="trailing" constant="20" id="L1A-jr-B5m"/>
+                                    <constraint firstAttribute="width" constant="300" id="Oem-Vg-BRQ"/>
+                                    <constraint firstItem="Llc-Cn-qte" firstAttribute="centerY" secondItem="AqR-Bs-MGw" secondAttribute="centerY" id="fyx-BO-mNl"/>
+                                    <constraint firstAttribute="height" constant="200" id="uxD-w6-SHQ"/>
+                                </constraints>
+                            </view>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="Uow-kh-wEO"/>
+                        <constraints>
+                            <constraint firstItem="Uow-kh-wEO" firstAttribute="trailing" secondItem="O1t-AR-lZS" secondAttribute="trailing" constant="20" id="DTa-oi-q1j"/>
+                            <constraint firstItem="xWs-7M-tS8" firstAttribute="leading" secondItem="Uow-kh-wEO" secondAttribute="leading" id="Spg-3R-Wgm"/>
+                            <constraint firstItem="xWs-7M-tS8" firstAttribute="bottom" secondItem="Uow-kh-wEO" secondAttribute="bottom" id="Wjk-wP-Rdx"/>
+                            <constraint firstItem="xWs-7M-tS8" firstAttribute="top" secondItem="Uow-kh-wEO" secondAttribute="top" id="YOH-tc-vj0"/>
+                            <constraint firstItem="AqR-Bs-MGw" firstAttribute="centerX" secondItem="h3X-RE-3mI" secondAttribute="centerX" id="eXf-eU-sbI"/>
+                            <constraint firstItem="xWs-7M-tS8" firstAttribute="trailing" secondItem="Uow-kh-wEO" secondAttribute="trailing" id="ffb-Yv-ksf"/>
+                            <constraint firstItem="Uow-kh-wEO" firstAttribute="bottom" secondItem="O1t-AR-lZS" secondAttribute="bottom" constant="20" id="sNR-1Y-Gqs"/>
+                            <constraint firstItem="AqR-Bs-MGw" firstAttribute="centerY" secondItem="h3X-RE-3mI" secondAttribute="centerY" id="vDe-AP-Qzp"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" title="ЗАВДАННЯ" id="Lvm-Rb-Vow"/>
+                    <connections>
+                        <outlet property="addButton" destination="O1t-AR-lZS" id="NBm-Du-reY"/>
+                        <outlet property="emptyStateLabel" destination="Llc-Cn-qte" id="ubo-LV-I3d"/>
+                        <outlet property="emptyStateView" destination="AqR-Bs-MGw" id="TJk-Jc-9lu"/>
+                        <outlet property="tableView" destination="xWs-7M-tS8" id="Ibe-dw-gNp"/>
+                        <segue destination="wu7-qu-ctq" kind="show" identifier="showAddTask" id="tew-9P-gpY"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="lsz-W1-xRB" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="3751.9083969465646" y="495.77464788732397"/>
+        </scene>
+        <!--Add Task View Controller-->
+        <scene sceneID="LKb-kd-0bh">
+            <objects>
+                <viewController storyboardIdentifier="AddTaskViewController" id="wu7-qu-ctq" customClass="AddTaskViewController" customModule="ScheduleLPNU" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="trW-f8-auL">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <viewLayoutGuide key="safeArea" id="N85-rj-gAf"/>
+                        <color key="tintColor" red="0.27450980390000002" green="0.40000000000000002" blue="0.40000000000000002" alpha="1" colorSpace="calibratedRGB"/>
+                    </view>
+                    <navigationItem key="navigationItem" style="editor" id="pEa-uX-6iX"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="x40-wL-FzF" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="4743" y="168"/>
+        </scene>
+        <!--Settings View Controller-->
+        <scene sceneID="MOR-ta-vKf">
+            <objects>
+                <viewController id="tq5-GZ-sN4" customClass="SettingsViewController" customModule="ScheduleLPNU" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="Jca-fz-I0m">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <viewLayoutGuide key="safeArea" id="Mqg-0y-6Uh"/>
+                    </view>
+                    <navigationItem key="navigationItem" id="VgT-Xv-P0e"/>
+                    <connections>
+                        <segue destination="4fQ-nC-w2g" kind="show" id="nWv-hR-nW5"/>
+                        <segue destination="CcI-zT-GMK" kind="show" id="lCS-hL-F3g"/>
+                        <segue destination="ho8-fZ-ljo" kind="show" id="eVL-8V-mCE"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="JnS-kB-6bX" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="3752" y="1770"/>
+        </scene>
+        <!--Add Subject Grade View Controller-->
+        <scene sceneID="jBp-iL-ESl">
+            <objects>
+                <viewController storyboardIdentifier="AddSubjectGradeViewController" id="CcI-zT-GMK" customClass="AddSubjectGradeViewController" customModule="ScheduleLPNU" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="Gff-eL-JV3">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <viewLayoutGuide key="safeArea" id="9Bj-Ho-Xb6"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    </view>
+                    <navigationItem key="navigationItem" style="editor" id="TNe-zt-zDv"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="9GT-Po-dfj" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="4941" y="1879"/>
+        </scene>
+        <!--Edit Subject Grade View Controller-->
+        <scene sceneID="E1L-B2-zZ4">
+            <objects>
+                <viewController storyboardIdentifier="EditSubjectGradeViewController" id="ho8-fZ-ljo" customClass="EditSubjectGradeViewController" customModule="ScheduleLPNU" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="PSQ-ZN-47H">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <viewLayoutGuide key="safeArea" id="qbO-sf-rdk"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    </view>
+                    <navigationItem key="navigationItem" style="editor" id="Ms4-7j-1nM"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="kqF-P9-bKt" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="4901" y="2675"/>
+        </scene>
+        <!--Grade Calculator View Controller-->
+        <scene sceneID="QFV-v3-kMW">
+            <objects>
+                <viewController storyboardIdentifier="GradeCalculatorViewController" id="4fQ-nC-w2g" customClass="GradeCalculatorViewController" customModule="ScheduleLPNU" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="dl7-ty-wJs">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <viewLayoutGuide key="safeArea" id="s6c-UX-5CO"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    </view>
+                    <navigationItem key="navigationItem" style="editor" id="F1K-cf-WLA"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="R59-cg-gmi" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="4941" y="1143"/>
+        </scene>
+        <!--Головна-->
+        <scene sceneID="NUB-kM-yOk">
+            <objects>
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="90E-mD-zNU" sceneMemberID="viewController">
+                    <tabBarItem key="tabBarItem" title="Головна" image="house.fill" catalog="system" id="thJ-9z-ncT">
+                        <color key="badgeColor" red="0.47450980390000003" green="0.62745098040000002" blue="0.64313725489999995" alpha="1" colorSpace="calibratedRGB"/>
+                    </tabBarItem>
+                    <toolbarItems/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="QpG-s7-BdY">
+                        <rect key="frame" x="0.0" y="59" width="393" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                        <color key="tintColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    </navigationBar>
+                    <nil name="viewControllers"/>
+                    <connections>
+                        <segue destination="BYZ-38-t0r" kind="relationship" relationship="rootViewController" id="Ft1-7b-wyL"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="XPt-Hh-Wpl" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="2674" y="-2601"/>
+        </scene>
+        <!--Мапа-->
+        <scene sceneID="fHj-1n-Czn">
+            <objects>
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="ugT-V4-Vfn" sceneMemberID="viewController">
+                    <tabBarItem key="tabBarItem" title="Мапа" image="map" catalog="system" id="9du-JP-OGz">
+                        <color key="badgeColor" red="0.27450980390000002" green="0.40000000000000002" blue="0.40000000000000002" alpha="1" colorSpace="calibratedRGB"/>
+                    </tabBarItem>
+                    <toolbarItems/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="RF5-jb-phL">
+                        <rect key="frame" x="0.0" y="59" width="393" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <nil name="viewControllers"/>
+                    <connections>
+                        <segue destination="9eL-Mo-Bje" kind="relationship" relationship="rootViewController" id="Kp6-ZB-pXb"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="TLY-QF-NWL" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="2673" y="-1009"/>
+        </scene>
+        <!--Завдання-->
+        <scene sceneID="5Vm-XP-eb3">
+            <objects>
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="13u-WT-haj" sceneMemberID="viewController">
+                    <tabBarItem key="tabBarItem" title="Завдання" image="checklist" catalog="system" id="09U-fX-GlK">
+                        <color key="badgeColor" red="0.27450980390000002" green="0.40000000000000002" blue="0.40000000000000002" alpha="1" colorSpace="calibratedRGB"/>
+                    </tabBarItem>
+                    <toolbarItems/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="GIf-We-WqF">
+                        <rect key="frame" x="0.0" y="59" width="393" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <nil name="viewControllers"/>
+                    <connections>
+                        <segue destination="H3Z-bY-M8X" kind="relationship" relationship="rootViewController" id="HwE-Jn-dSd"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="39q-XS-79a" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="2673" y="497"/>
+        </scene>
+        <!--Налаштування-->
+        <scene sceneID="mL1-RP-cKN">
+            <objects>
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="r32-Hl-lJn" sceneMemberID="viewController">
+                    <tabBarItem key="tabBarItem" title="Налаштування" image="gear" catalog="system" id="aqd-T8-5ts">
+                        <color key="badgeColor" red="0.27450980390000002" green="0.40000000000000002" blue="0.40000000000000002" alpha="1" colorSpace="calibratedRGB"/>
+                    </tabBarItem>
+                    <toolbarItems/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="dsP-RT-jEo">
+                        <rect key="frame" x="0.0" y="59" width="393" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <nil name="viewControllers"/>
+                    <connections>
+                        <segue destination="tq5-GZ-sN4" kind="relationship" relationship="rootViewController" id="N8q-OI-COT"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="GlH-EC-kQ4" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="2673" y="1770"/>
+        </scene>
+        <!--Tab Bar Controller-->
+        <scene sceneID="Ibd-6o-KKm">
+            <objects>
+                <tabBarController automaticallyAdjustsScrollViewInsets="NO" id="k9r-l9-pJ3" sceneMemberID="viewController">
+                    <toolbarItems/>
+                    <tabBar key="tabBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="Raw-d7-DZ5">
+                        <rect key="frame" x="0.0" y="0.0" width="1000" height="1000"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                        <color key="selectedImageTintColor" red="0.27450980390000002" green="0.40000000000000002" blue="0.40000000000000002" alpha="1" colorSpace="calibratedRGB"/>
+                    </tabBar>
+                    <connections>
+                        <segue destination="90E-mD-zNU" kind="relationship" relationship="viewControllers" id="Qvp-mM-mte"/>
+                        <segue destination="ugT-V4-Vfn" kind="relationship" relationship="viewControllers" id="BdT-Qy-tbE"/>
+                        <segue destination="13u-WT-haj" kind="relationship" relationship="viewControllers" id="dUT-A1-9s4"/>
+                        <segue destination="r32-Hl-lJn" kind="relationship" relationship="viewControllers" id="4qx-IV-vc4"/>
+                    </connections>
+                </tabBarController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="8cf-Nd-qaa" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1234" y="-63"/>
         </scene>
     </scenes>
+    <resources>
+        <image name="checklist" catalog="system" width="128" height="107"/>
+        <image name="gear" catalog="system" width="128" height="122"/>
+        <image name="house.fill" catalog="system" width="128" height="104"/>
+        <image name="list.bullet" catalog="system" width="128" height="87"/>
+        <image name="magnifyingglass" catalog="system" width="128" height="117"/>
+        <image name="map" catalog="system" width="128" height="112"/>
+        <image name="plus" catalog="system" width="128" height="113"/>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+    </resources>
 </document>

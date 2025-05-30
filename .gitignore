@@ -1,0 +1,27 @@
+# Xcode
+*.xcuserstate
+*.xcworkspace/xcuserdata/
+*.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist
+project.xcworkspace/
+.DS_Store
+build/
+DerivedData/
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# CocoaPods
+Pods/
+*.xcworkspace
+
+# Swift Package Manager
+.build/
+Packages/
+Package.pins
+Package.resolved
+
+# fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/**/*.png
+fastlane/test_output
