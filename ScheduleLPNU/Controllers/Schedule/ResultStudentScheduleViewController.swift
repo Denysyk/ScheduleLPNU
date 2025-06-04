@@ -365,7 +365,6 @@ class ResultStudentScheduleViewController: UIViewController, UITableViewDelegate
         }
     }
     
-    // У файлі ResultStudentScheduleViewController.swift змініть метод parseScheduleFromHTML
 
     private func parseScheduleFromHTML(_ html: String) {
         do {
@@ -656,7 +655,7 @@ class ResultStudentScheduleViewController: UIViewController, UITableViewDelegate
             let lessonGroup = groupedLessons[indexPath.row]
             
             // Базова висота для картки з заняттям
-            var baseHeight: CGFloat = 150 // Базова висота клітинки
+            var baseHeight: CGFloat = 180 // Базова висота клітинки
             
             // Якщо є URL, додаємо висоту для кнопки
             let hasURL = lessonGroup.contains {
@@ -665,7 +664,7 @@ class ResultStudentScheduleViewController: UIViewController, UITableViewDelegate
             }
             
             if hasURL {
-                baseHeight += 100
+                baseHeight += 80
             }
             
             // Перевіряємо чи маємо парний/непарний тижні або підгрупи
@@ -689,7 +688,7 @@ class ResultStudentScheduleViewController: UIViewController, UITableViewDelegate
             return baseHeight
         }
           
-        return 150 // Стандартна висота
+        return 180 // Стандартна висота
     }
           
     // Кількість секцій = кількість днів

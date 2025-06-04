@@ -32,9 +32,9 @@ extension SubjectGrade {
     var gradeTo5Scale: Double {
         switch grade {
         case 88...100: return 5.0  // Відмінно
-        case 80...87: return 4.5   // Дуже добре
+        case 80...87: return 4.0   // Дуже добре
         case 71...79: return 4.0   // Добре
-        case 61...70: return 3.5   // Посередньо
+        case 61...70: return 3.0   // Посередньо
         case 50...60: return 3.0   // Задовільно
         case 26...49: return 2.0   // Незадовільно (з можливістю перескладання)
         default: return 1.0        // Незадовільно (з обов'язковим повторним вивченням)
@@ -76,6 +76,7 @@ enum CreditOption: Int, CaseIterable {
     case six = 6
     case seven = 7
     case eight = 8
+    case nine = 9
     
     var displayName: String {
         return "\(rawValue) кредит\(rawValue == 1 ? "" : rawValue < 5 ? "и" : "ів")"

@@ -806,7 +806,7 @@ class SettingsViewController: UIViewController, PKPaymentAuthorizationViewContro
     private func showBankCardInfo() {
         let alert = UIAlertController(
             title: "Підтримка розробника",
-            message: "Карта ПриватБанку:\n4441 1110 6876 6264\n\nDenys Brativnyk",
+            message: "Карта Mono:\n4441 1110 6876 6264\n\nDenys Brativnyk",
             preferredStyle: .alert
         )
         

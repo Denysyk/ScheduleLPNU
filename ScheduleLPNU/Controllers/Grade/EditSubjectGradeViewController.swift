@@ -1,6 +1,6 @@
 import UIKit
 
-class AddSubjectGradeViewController: UIViewController {
+class EditSubjectGradeViewController: UIViewController {
     
     // UI елементи (програмно)
     private var scrollView: UIScrollView!
@@ -9,6 +9,7 @@ class AddSubjectGradeViewController: UIViewController {
     private var creditsTextField: UITextField!
     private var gradeTextField: UITextField!
     private var saveButton: UIButton!
+    private var deleteButton: UIButton!
     
     // Labels для тематизації
     private var subjectNameLabel: UILabel!
@@ -16,6 +17,7 @@ class AddSubjectGradeViewController: UIViewController {
     private var gradeLabel: UILabel!
     
     // Дані
+    var gradeToEdit: SubjectGrade?
     private var selectedCredits = 3
     private var selectedGrade = 94.0 // Відмінно за замовчуванням
     
@@ -25,7 +27,7 @@ class AddSubjectGradeViewController: UIViewController {
         setupConstraints()
         setupThemeObserver()
         applyTheme()
-        setupNotificationObserver()
+        loadGradeData()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -35,20 +37,6 @@ class AddSubjectGradeViewController: UIViewController {
     
     deinit {
         NotificationCenter.default.removeObserver(self)
-    }
-    
-    private func setupNotificationObserver() {
-        // Додаємо спостерігача для оновлення списку предметів
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(gradeWasAdded),
-            name: NSNotification.Name("GradeWasAdded"),
-            object: nil
-        )
-    }
-    
-    @objc private func gradeWasAdded() {
-        // Можна додати тут додаткову логіку якщо потрібно
     }
     
     private func setupThemeObserver() {
@@ -98,6 +86,9 @@ class AddSubjectGradeViewController: UIViewController {
         
         // Save button
         saveButton.backgroundColor = theme.accentColor
+        
+        // Delete button
+        deleteButton.backgroundColor = .systemRed
     }
     
     private func updatePlaceholders() {
@@ -127,7 +118,7 @@ class AddSubjectGradeViewController: UIViewController {
     }
     
     private func setupUI() {
-        title = "ДОДАТИ ПРЕДМЕТ"
+        title = "РЕДАГУВАТИ ПРЕДМЕТ"
         
         // Navigation buttons
         navigationItem.leftBarButtonItem = UIBarButtonItem(
@@ -152,6 +143,7 @@ class AddSubjectGradeViewController: UIViewController {
         createCreditsField()
         createGradeField()
         createSaveButton()
+        createDeleteButton()
     }
     
     private func createSubjectNameField() {
@@ -177,25 +169,6 @@ class AddSubjectGradeViewController: UIViewController {
         subjectNameTextField.rightViewMode = .always
         
         contentView.addSubview(subjectNameTextField)
-        
-        // Додаємо кнопку для імпорту з розкладу
-        let importButton = UIButton(type: .system)
-        importButton.setTitle("Імпортувати з розкладу", for: .normal)
-        importButton.titleLabel?.font = .systemFont(ofSize: 14, weight: .medium)
-        importButton.addTarget(self, action: #selector(importFromScheduleTapped), for: .touchUpInside)
-        contentView.addSubview(importButton)
-        
-        // Apply theme to import button
-        DispatchQueue.main.async {
-            let theme = ThemeManager.shared
-            importButton.setTitleColor(theme.accentColor, for: .normal)
-        }
-        
-        importButton.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            importButton.topAnchor.constraint(equalTo: subjectNameTextField.bottomAnchor, constant: 8),
-            importButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20)
-        ])
     }
     
     private func createCreditsField() {
@@ -210,7 +183,6 @@ class AddSubjectGradeViewController: UIViewController {
         creditsTextField.placeholder = "Введіть кількість кредитів (1-8)"
         creditsTextField.font = UIFont.systemFont(ofSize: 17)
         creditsTextField.keyboardType = .numberPad
-        creditsTextField.text = "" // Порожнє поле за замовчуванням
         
         // Левий padding
         let leftPaddingView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: 44))
@@ -237,7 +209,6 @@ class AddSubjectGradeViewController: UIViewController {
         gradeTextField.placeholder = "Введіть оцінку (0-100)"
         gradeTextField.font = UIFont.systemFont(ofSize: 17)
         gradeTextField.keyboardType = .numberPad
-        gradeTextField.text = "" // Порожнє поле за замовчуванням
         
         // Левий padding
         let leftPaddingView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: 44))
@@ -275,7 +246,7 @@ class AddSubjectGradeViewController: UIViewController {
     
     private func createSaveButton() {
         saveButton = UIButton(type: .system)
-        saveButton.setTitle("Зберегти", for: .normal)
+        saveButton.setTitle("Зберегти зміни", for: .normal)
         saveButton.setTitleColor(.white, for: .normal)
         saveButton.titleLabel?.font = .systemFont(ofSize: 18, weight: .medium)
         saveButton.layer.cornerRadius = 12
@@ -283,9 +254,19 @@ class AddSubjectGradeViewController: UIViewController {
         contentView.addSubview(saveButton)
     }
     
+    private func createDeleteButton() {
+        deleteButton = UIButton(type: .system)
+        deleteButton.setTitle("Видалити предмет", for: .normal)
+        deleteButton.setTitleColor(.white, for: .normal)
+        deleteButton.titleLabel?.font = .systemFont(ofSize: 18, weight: .medium)
+        deleteButton.layer.cornerRadius = 12
+        deleteButton.addTarget(self, action: #selector(deleteButtonTapped), for: .touchUpInside)
+        contentView.addSubview(deleteButton)
+    }
+    
     private func setupConstraints() {
         [scrollView, contentView, subjectNameLabel, subjectNameTextField,
-         creditsLabel, creditsTextField, gradeLabel, gradeTextField, saveButton].forEach {
+         creditsLabel, creditsTextField, gradeLabel, gradeTextField, saveButton, deleteButton].forEach {
             $0?.translatesAutoresizingMaskIntoConstraints = false
         }
         
@@ -313,7 +294,7 @@ class AddSubjectGradeViewController: UIViewController {
             subjectNameTextField.heightAnchor.constraint(equalToConstant: 44),
             
             // Credits
-            creditsLabel.topAnchor.constraint(equalTo: subjectNameTextField.bottomAnchor, constant: 44),
+            creditsLabel.topAnchor.constraint(equalTo: subjectNameTextField.bottomAnchor, constant: 24),
             creditsLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
             
             creditsTextField.topAnchor.constraint(equalTo: creditsLabel.bottomAnchor, constant: 8),
@@ -335,7 +316,13 @@ class AddSubjectGradeViewController: UIViewController {
             saveButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
             saveButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
             saveButton.heightAnchor.constraint(equalToConstant: 50),
-            saveButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -40)
+            
+            // Delete button
+            deleteButton.topAnchor.constraint(equalTo: saveButton.bottomAnchor, constant: 12),
+            deleteButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
+            deleteButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
+            deleteButton.heightAnchor.constraint(equalToConstant: 50),
+            deleteButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -40)
         ])
         
         // Додаємо constraint для мінімальної висоти content view
@@ -344,89 +331,33 @@ class AddSubjectGradeViewController: UIViewController {
         contentHeightConstraint.isActive = true
     }
     
+    private func loadGradeData() {
+        guard let grade = gradeToEdit else { return }
+        
+        subjectNameTextField.text = grade.name
+        creditsTextField.text = "\(grade.credits)"
+        gradeTextField.text = "\(Int(grade.grade))"
+        
+        selectedCredits = grade.credits
+        selectedGrade = grade.grade
+    }
+    
     // MARK: - Actions
     
     @objc private func cancelTapped() {
         dismiss(animated: true)
     }
     
-    @objc private func importFromScheduleTapped() {
-        // Спочатку показуємо збережені розклади
-        let savedSchedules = ScheduleManager.shared.getSavedSchedules()
-        
-        guard !savedSchedules.isEmpty else {
-            showAlert(title: "Немає розкладів", message: "Спочатку завантажте та збережіть розклад")
-            return
-        }
-        
-        let alert = UIAlertController(title: "Виберіть розклад", message: nil, preferredStyle: .actionSheet)
-        
-        for schedule in savedSchedules {
-            let action = UIAlertAction(title: schedule.title, style: .default) { [weak self] _ in
-                self?.showSubjectsFromSchedule(schedule)
-            }
-            alert.addAction(action)
-        }
-        
-        alert.addAction(UIAlertAction(title: "Скасувати", style: .cancel))
-        
-        // Для iPad
-        if let popover = alert.popoverPresentationController {
-            popover.sourceView = view
-            popover.sourceRect = CGRect(x: view.bounds.midX, y: view.bounds.midY, width: 0, height: 0)
-        }
-        
-        present(alert, animated: true)
-    }
-    
-    private func showSubjectsFromSchedule(_ schedule: SavedSchedule) {
-        var subjectNames: Set<String> = []
-        
-        // Збираємо всі предмети з вибраного розкладу
-        for day in schedule.scheduleDays {
-            for lesson in day.lessons {
-                if !lesson.name.isEmpty && lesson.name != "Невідомо" {
-                    subjectNames.insert(lesson.name)
-                }
-            }
-        }
-        
-        let subjects = Array(subjectNames).sorted()
-        
-        guard !subjects.isEmpty else {
-            showAlert(title: "Немає предметів", message: "У вибраному розкладі немає предметів")
-            return
-        }
-        
-        let alert = UIAlertController(title: "Виберіть предмет", message: "Розклад: \(schedule.title)", preferredStyle: .actionSheet)
-        
-        for subject in subjects {
-            // НЕ перевіряємо чи вже є оцінка - дозволяємо додавати один предмет кілька разів
-            let action = UIAlertAction(title: subject, style: .default) { [weak self] _ in
-                self?.subjectNameTextField.text = subject
-            }
-            alert.addAction(action)
-        }
-        
-        alert.addAction(UIAlertAction(title: "Скасувати", style: .cancel))
-        
-        // Для iPad
-        if let popover = alert.popoverPresentationController {
-            popover.sourceView = view
-            popover.sourceRect = CGRect(x: view.bounds.midX, y: view.bounds.midY, width: 0, height: 0)
-        }
-        
-        present(alert, animated: true)
-    }
-    
     @objc private func saveButtonTapped() {
+        guard let originalGrade = gradeToEdit else { return }
+        
         guard let subjectName = subjectNameTextField.text, !subjectName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
             showAlert(title: "Помилка", message: "Введіть назву предмету")
             return
         }
         
         guard let creditsText = creditsTextField.text, let credits = Int(creditsText), credits >= 1 && credits <= 8 else {
-            showAlert(title: "Помилка", message: "Введіть коректну кількість кредитів (1-8)")
+            showAlert(title: "Помилка", message: "Введіть коректну кількість кредитів (1-9)")
             return
         }
         
@@ -437,20 +368,50 @@ class AddSubjectGradeViewController: UIViewController {
         
         let trimmedName = subjectName.trimmingCharacters(in: .whitespacesAndNewlines)
         
-        // НЕ перевіряємо на дублікати - дозволяємо додавати один предмет кілька разів
+        // НЕ перевіряємо на дублікати - дозволяємо мати однакові назви предметів
         
-        let newGrade = SubjectGrade(
+        // Видаляємо старий запис
+        GradeManager.shared.deleteGrade(withId: originalGrade.id)
+        
+        // Створюємо новий з тими ж даними, але оновленими полями
+        let updatedGrade = SubjectGrade(
             name: trimmedName,
             credits: credits,
-            grade: grade
+            grade: grade,
+            isCompleted: originalGrade.isCompleted
         )
         
-        GradeManager.shared.addGrade(newGrade)
+        // Додаємо новий
+        GradeManager.shared.addGrade(updatedGrade)
         
-        // Відправляємо notification про додавання оцінки
+        // Відправляємо notification про оновлення
         NotificationCenter.default.post(name: NSNotification.Name("GradeWasAdded"), object: nil)
         
         dismiss(animated: true)
+    }
+    
+    @objc private func deleteButtonTapped() {
+        guard let grade = gradeToEdit else { return }
+        
+        let alert = UIAlertController(
+            title: "Видалити предмет",
+            message: "Ви впевнені, що хочете видалити \(grade.name)?",
+            preferredStyle: .alert
+        )
+        alert.view.tintColor = ThemeManager.shared.accentColor
+        
+        alert.addAction(UIAlertAction(title: "Видалити", style: .destructive) { [weak self] _ in
+            GradeManager.shared.deleteGrade(withId: grade.id)
+            
+            // Відправляємо notification про видалення
+            NotificationCenter.default.post(name: NSNotification.Name("GradeWasAdded"), object: nil)
+            
+            self?.dismiss(animated: true)
+        })
+        
+        alert.addAction(UIAlertAction(title: "Скасувати", style: .cancel))
+        
+        present(alert, animated: true)
     }
     
     private func showAlert(title: String, message: String) {

@@ -529,12 +529,12 @@ extension ThemeManager {
            customColorData.count == 4 {
             let customColor = UIColor(red: customColorData[0], green: customColorData[1],
                                     blue: customColorData[2], alpha: customColorData[3])
-            print("Using custom color: R:\(customColorData[0]), G:\(customColorData[1]), B:\(customColorData[2])") // Debug
+            //print("Using custom color: R:\(customColorData[0]), G:\(customColorData[1]), B:\(customColorData[2])") // Debug
             return customColor
         }
         
         // Якщо немає власного кольору, повертаємо стандартний
-        print("Using standard color: \(currentAccentColor.displayName)") // Debug
+        //print("Using standard color: \(currentAccentColor.displayName)") // Debug
         return currentAccentColor.color
     }
     

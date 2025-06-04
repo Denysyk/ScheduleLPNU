@@ -9,7 +9,7 @@ struct ScheduleDay: Codable {
 struct Lesson: Codable {
     let number: String
     let name: String
-    let teacher: String // Для студентів - викладач, для викладачів - група
+    let teacher: String 
     let room: String
     let type: String
     let timeStart: String
