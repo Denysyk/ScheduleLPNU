@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import UserNotifications
 
 class TaskViewController: UIViewController {
     
@@ -45,8 +46,10 @@ class TaskViewController: UIViewController {
         NotificationManager.shared.requestPermission { granted in
             if granted {
                 NotificationManager.shared.scheduleReminderNotifications()
+                NotificationManager.shared.scheduleMotivationalReminders()
             }
         }
+        
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -66,6 +69,25 @@ class TaskViewController: UIViewController {
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
+
+    private func showNotificationPermissionAlert() {
+        let alert = UIAlertController(
+            title: "Дозволи на сповіщення",
+            message: "Для роботи нагадувань потрібні дозволи на сповіщення. Перейти в налаштування?",
+            preferredStyle: .alert
+        )
+        
+        alert.addAction(UIAlertAction(title: "Налаштування", style: .default) { _ in
+            if let settingsUrl = URL(string: UIApplication.openSettingsURLString) {
+                UIApplication.shared.open(settingsUrl)
+            }
+        })
+        
+        alert.addAction(UIAlertAction(title: "Скасувати", style: .cancel))
+        
+        present(alert, animated: true)
+    }
+
     
     private func setupThemeObserver() {
         NotificationCenter.default.addObserver(
@@ -421,18 +443,18 @@ class TaskViewController: UIViewController {
         }
     }
     
-    // ВИПРАВЛЕНО: Безпечне позначення завдань
+    // ЗАМІНІТЬ ІСНУЮЧИЙ МЕТОД markSelectedTasks
     private func markSelectedTasks(completed: Bool) {
         for taskId in selectedTaskIds {
-            if let index = tasks.firstIndex(where: { $0.id == taskId }) {
-                tasks[index].isCompleted = completed
-                TaskManager.shared.updateTask(tasks[index])
+            // Використовуємо новий спосіб
+            if completed {
+                TaskManager.shared.completeTask(withId: taskId)
+            } else {
+                TaskManager.shared.uncompleteTask(withId: taskId)
             }
         }
         
         toggleSelectionMode()
-        
-        // НАЙПРОСТІШЕ: Повністю перезавантажуємо все
         loadTasks()
     }
 
@@ -576,32 +598,29 @@ class TaskViewController: UIViewController {
         }
     }
     
-    // ВИПРАВЛЕНО: Безпечне перемикання статусу завдання
+    // ЗАМІНІТЬ ІСНУЮЧИЙ МЕТОД toggleTaskCompletion
     private func toggleTaskCompletion(taskId: String) {
         if let index = tasks.firstIndex(where: { $0.id == taskId }) {
-            tasks[index].isCompleted.toggle()
-            TaskManager.shared.updateTask(tasks[index])
+            let wasCompleted = tasks[index].isCompleted
             
+            // Використовуємо новий спосіб
+            if wasCompleted {
+                TaskManager.shared.uncompleteTask(withId: taskId)
+            } else {
+                TaskManager.shared.completeTask(withId: taskId)
+            }
+            
+            // Оновлюємо локальні масиви
+            tasks[index].isCompleted = !wasCompleted
             if let allTasksIndex = allTasks.firstIndex(where: { $0.id == taskId }) {
-                allTasks[allTasksIndex].isCompleted.toggle()
+                allTasks[allTasksIndex].isCompleted = !wasCompleted
             }
             
             // ОНОВЛЕНО: Плавна анімація переміщення
-            let wasCompleted = !tasks[index].isCompleted // інвертуємо, бо вже змінили
-            
             applyFilter()
             updateApplicationBadge()
             
-            if wasCompleted {
-                // Завдання стало не виконаним - переміщуємо вгору
-                tableView.reloadData()
-                
-                // Прокручуємо до нового положення
-                if let newIndex = filteredTasks.firstIndex(where: { $0.id == taskId }) {
-                    let indexPath = IndexPath(row: newIndex, section: 0)
-                    tableView.scrollToRow(at: indexPath, at: .middle, animated: true)
-                }
-            } else {
+            if !wasCompleted {
                 // Завдання стало виконаним - переміщуємо вниз
                 UIView.transition(with: tableView, duration: 0.3, options: .transitionCrossDissolve) {
                     self.tableView.reloadData()
@@ -611,6 +630,15 @@ class TaskViewController: UIViewController {
                         let indexPath = IndexPath(row: newIndex, section: 0)
                         self.tableView.scrollToRow(at: indexPath, at: .middle, animated: true)
                     }
+                }
+            } else {
+                // Завдання стало не виконаним - переміщуємо вгору
+                tableView.reloadData()
+                
+                // Прокручуємо до нового положення
+                if let newIndex = filteredTasks.firstIndex(where: { $0.id == taskId }) {
+                    let indexPath = IndexPath(row: newIndex, section: 0)
+                    tableView.scrollToRow(at: indexPath, at: .middle, animated: true)
                 }
             }
         }
