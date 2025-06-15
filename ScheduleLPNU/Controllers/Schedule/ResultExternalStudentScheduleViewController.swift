@@ -399,9 +399,12 @@ class ResultExternalStudentScheduleViewController: UIViewController, UITableView
                                         var weekType: WeekType = .full
                                         var subgroupType: String?
                                         
-                                        // Шукаємо divElement для визначення типу тижня та підгрупи
+                                        var isActiveThisWeek = false
+
+                                        // Визначаємо тип тижня та підгрупи
                                         if let divElement = try? lessonRow.select("[id^=group_], [id^=sub_]").first() {
                                             let divId = try? divElement.id()
+                                            let divClass = try? divElement.className()
                                             
                                             if let id = divId {
                                                 // Визначаємо тип тижня (для заочників зазвичай full)
@@ -417,6 +420,11 @@ class ResultExternalStudentScheduleViewController: UIViewController, UITableView
                                                 } else if id.contains("sub_2") {
                                                     subgroupType = "підгрупа 2"
                                                 }
+                                            }
+                                            
+                                            // Визначаємо активність через week_color
+                                            if let className = divClass, className.contains("week_color") {
+                                                isActiveThisWeek = true
                                             }
                                         }
                                         
@@ -483,7 +491,7 @@ class ResultExternalStudentScheduleViewController: UIViewController, UITableView
                                                 timeStart: getTimeStart(for: currentLessonNumber),
                                                 timeEnd: getTimeEnd(for: currentLessonNumber),
                                                 url: url,
-                                                weekType: weekType
+                                                weekType: weekType, isActiveThisWeek: isActiveThisWeek
                                             )
                                             
                                             daySchedule.lessons.append(lesson)

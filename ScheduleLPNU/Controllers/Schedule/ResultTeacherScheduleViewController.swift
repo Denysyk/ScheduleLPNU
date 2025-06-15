@@ -420,10 +420,13 @@ class ResultTeacherScheduleViewController: UIViewController, UITableViewDelegate
                             var subgroupType: String?
                             var elementIdType = ""
                             
+                            var isActiveThisWeek = false
+
                             // Визначаємо тип тижня та підгрупи
                             if let divElement = try? lessonRow.select("[id^=group_], [id^=sub_]").first() {
                                 let divId = try? divElement.id()
-                                
+                                let divClass = try? divElement.className()
+
                                 if let id = divId {
                                     elementIdType = id // Зберігаємо повний id
                                     
@@ -438,6 +441,11 @@ class ResultTeacherScheduleViewController: UIViewController, UITableViewDelegate
                                     } else if id.contains("sub_2") {
                                         subgroupType = "підгрупа 2"
                                     }
+                                }
+                                
+                                // Визначаємо активність через week_color
+                                if let className = divClass, className.contains("week_color") {
+                                    isActiveThisWeek = true
                                 }
                             }
                             
@@ -530,7 +538,7 @@ class ResultTeacherScheduleViewController: UIViewController, UITableViewDelegate
                                     timeStart: getTimeStart(for: currentLessonNumber),
                                     timeEnd: getTimeEnd(for: currentLessonNumber),
                                     url: url,
-                                    weekType: weekType
+                                    weekType: weekType, isActiveThisWeek: isActiveThisWeek
                                 )
                                 
                                 lessonsForThisPair.append(lesson)

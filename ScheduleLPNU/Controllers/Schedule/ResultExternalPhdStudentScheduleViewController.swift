@@ -398,25 +398,32 @@ class ResultExternalPhdStudentScheduleViewController: UIViewController, UITableV
                             var weekType: WeekType = .full
                             var subgroupType: String?
                                    
+                            var isActiveThisWeek = false
+
                             // Визначаємо тип тижня та підгрупи
                             if let divElement = try? lessonRow.select("[id^=group_], [id^=sub_]").first() {
                                 let divId = try? divElement.id()
-                                       
+                                let divClass = try? divElement.className()
+                                
                                 if let id = divId {
                                     if id.contains("chys") {
                                         weekType = .even
                                     } else if id.contains("znam") {
                                         weekType = .odd
                                     }
-                                           
+                                    
                                     if id.contains("sub_1") {
                                         subgroupType = "підгрупа 1"
                                     } else if id.contains("sub_2") {
                                         subgroupType = "підгрупа 2"
                                     }
                                 }
+                                
+                                // Визначаємо активність через week_color
+                                if let className = divClass, className.contains("week_color") {
+                                    isActiveThisWeek = true
+                                }
                             }
-                                   
                             // Парсимо вміст заняття
                             if let lessonContent = try? lessonRow.select(".group_content").first() {
                                 let lessonHtml = try? lessonContent.html() ?? ""
@@ -503,7 +510,7 @@ class ResultExternalPhdStudentScheduleViewController: UIViewController, UITableV
                                     timeStart: getTimeStart(for: currentLessonNumber),
                                     timeEnd: getTimeEnd(for: currentLessonNumber),
                                     url: url,
-                                    weekType: weekType
+                                    weekType: weekType, isActiveThisWeek: isActiveThisWeek
                                 )
                                        
                                 lessonsForThisPair.append(lesson)

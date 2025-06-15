@@ -460,7 +460,7 @@ class ResultStudentExamScheduleViewController: UIViewController, UITableViewDele
                             timeStart: timeStart,
                             timeEnd: timeEnd,
                             url: url,
-                            weekType: .full
+                            weekType: .full, isActiveThisWeek: true
                         )
                                    
                         currentDaySchedule.lessons.append(lesson)

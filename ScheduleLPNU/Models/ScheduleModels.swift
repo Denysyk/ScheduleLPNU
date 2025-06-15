@@ -16,11 +16,12 @@ struct Lesson: Codable {
     let timeEnd: String
     let url: String?
     let weekType: WeekType
+    let isActiveThisWeek: Bool 
 }
 
 // Enum для типу тижня
 enum WeekType: String, Codable {
-    case full = "full"    // Кожен тиждень
-    case odd = "odd"      // Непарний тиждень
-    case even = "even"    // Парний тиждень
+    case full = "full"
+    case odd = "odd"
+    case even = "even"
 }

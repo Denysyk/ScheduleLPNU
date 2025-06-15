@@ -336,75 +336,80 @@ class ResultTeacherExamScheduleViewController: UIViewController, UITableViewDele
     private func parseScheduleFromHTML(_ html: String) {
         do {
             let doc = try SwiftSoup.parse(html)
-                       
+            
             guard let viewContent = try? doc.select(".view-content").first() else {
                 showAlert(title: "Помилка", message: "Відсутні дані за заданим запитом")
                 return
             }
-                       
+            
             scheduleDays.removeAll()
-                       
+            
             // Перевіряємо чи є повідомлення про відсутність даних
             if let noDataMessage = try? viewContent.select(".view-empty").first()?.text(),
                !noDataMessage.isEmpty {
                 showAlert(title: "Інформація", message: "Розклад екзаменів не знайдено для викладача \(teacherName)")
                 return
             }
-                       
-            // Для екзаменів викладачів використовуємо комбінований підхід:
-            // - Лінійний парсинг як у екзаменів студентів
-            // - Логіка груп замість викладачів як у звичайному розкладі викладачів
-                       
+            
+            // Отримуємо всі елементи view-content
             var allElements: [Element] = []
             if let children = try? viewContent.children() {
                 for child in children {
                     allElements.append(child)
                 }
             }
-                       
+            
             var currentDayName = ""
             var currentLessonNumber = ""
             var currentDaySchedule = ScheduleDay(dayName: "", lessons: [])
-                       
+            
             for element in allElements {
-                // Перевіряємо чи це заголовок дня (може бути дата для екзаменів)
+                let tagName = try? element.tagName()
+                let className = try? element.className()
+                
+                // ВИПРАВЛЕНО: Перевіряємо заголовки днів
                 if (try? element.hasClass("view-grouping-header")) == true {
-                    // Зберігаємо попередній день, якщо він не порожній
-                    if !currentDaySchedule.dayName.isEmpty && !currentDaySchedule.lessons.isEmpty {
-                        scheduleDays.append(currentDaySchedule)
+                    let headerText = (try? element.text()) ?? ""
+                    
+                    // Якщо це не порожній заголовок і це дата
+                    if !headerText.isEmpty && headerText.contains("-") {
+                        // Зберігаємо попередній день, якщо він не порожній
+                        if !currentDaySchedule.dayName.isEmpty && !currentDaySchedule.lessons.isEmpty {
+                            scheduleDays.append(currentDaySchedule)
+                        }
+                        
+                        // Починаємо новий день
+                        currentDayName = headerText
+                        currentDaySchedule = ScheduleDay(dayName: currentDayName, lessons: [])
                     }
-                               
-                    // Починаємо новий день
-                    currentDayName = try! element.text()
-                    currentDaySchedule = ScheduleDay(dayName: currentDayName, lessons: [])
                     continue
                 }
-                           
-                // Перевіряємо чи це номер пари
-                if (try? element.tagName()) == "h3" {
-                    currentLessonNumber = try! element.text()
+                
+                // Перевіряємо чи це номер пари (h3)
+                if tagName == "h3" {
+                    currentLessonNumber = (try? element.text()) ?? ""
                     continue
                 }
-                           
-                // Перевіряємо чи це контейнер з екзаменом (.stud_schedule для викладачів)
+                
+                // Перевіряємо чи це контейнер з екзаменом (.stud_schedule)
                 if (try? element.hasClass("stud_schedule")) == true {
                     // В контейнері можуть бути кілька .views-row
                     if let lessonRows = try? element.select(".views-row") {
                         for lessonRow in lessonRows {
-                            var weekType: WeekType = .full // Екзамени зазвичай не мають чергування тижнів
+                            var weekType: WeekType = .full
                             var subgroupType: String?
-                                       
-                            // Визначаємо тип тижня та підгрупи (якщо є)
+                            
+                            // Визначаємо тип тижня та підгрупи з div id
                             if let divElement = try? lessonRow.select("[id^=group_], [id^=sub_]").first() {
                                 let divId = try? divElement.id()
-                                           
+                                
                                 if let id = divId {
                                     if id.contains("chys") {
                                         weekType = .even
                                     } else if id.contains("znam") {
                                         weekType = .odd
                                     }
-                                               
+                                    
                                     if id.contains("sub_1") {
                                         subgroupType = "підгрупа 1"
                                     } else if id.contains("sub_2") {
@@ -412,41 +417,46 @@ class ResultTeacherExamScheduleViewController: UIViewController, UITableViewDele
                                     }
                                 }
                             }
-                                       
+                            
+                            // Для екзаменів викладачів завжди активні
+                            let isActiveThisWeek = true
+                            
                             if let lessonContent = try? lessonRow.select(".group_content").first() {
-                                let lessonHtml = try? lessonContent.html() ?? ""
-                                           
-                                let lessonText = lessonHtml?.replacingOccurrences(of: "<br>", with: "\n")
-                                                             .replacingOccurrences(of: "<br />", with: "\n") ?? ""
+                                let lessonHtml = (try? lessonContent.html()) ?? ""
+                                
+                                let lessonText = lessonHtml.replacingOccurrences(of: "<br>", with: "\n")
+                                                         .replacingOccurrences(of: "<br />", with: "\n")
                                 let lines = lessonText.components(separatedBy: "\n")
                                                      .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
                                                      .filter { !$0.isEmpty }
-                                           
+                                
                                 var lessonName = ""
                                 var groupName = ""
                                 var room = ""
-                                var type = "Екзамен" // За замовчуванням для екзаменів
+                                var type = "Екзамен"
                                 var timeStart = ""
                                 var timeEnd = ""
                                 var url: String? = nil
-                                           
+                                
+                                // ВИПРАВЛЕНО: Парсинг рядків
                                 if lines.count > 0 {
                                     lessonName = removeHTMLTags(from: lines[0])
                                 }
-                                           
+                                
                                 if lines.count > 1 {
                                     let details = lines[1]
                                     let components = details.components(separatedBy: ", ")
-                                               
-                                    // Логіка для викладачів: групи замість викладачів
+                                    
+                                    // ВИПРАВЛЕНО: Логіка для викладачів - групи замість викладачів
                                     if components.count >= 3 {
-                                        // Якщо є принаймні 3 компоненти, останні два - це аудиторія і тип
+                                        // Групи - всі компоненти крім останніх двох
                                         let groupComponents = Array(components.dropLast(2))
                                         groupName = groupComponents.joined(separator: ", ")
-                                                   
+                                        
+                                        // Передостанній - аудиторія (якщо є)
                                         room = removeHTMLTags(from: components[components.count - 2])
-                                                   
-                                        // Останній компонент може бути часом або типом
+                                        
+                                        // Останній - тип екзамену
                                         let lastComponent = removeHTMLTags(from: components[components.count - 1])
                                         if lastComponent.contains(":") {
                                             // Це час екзамену
@@ -459,10 +469,10 @@ class ResultTeacherExamScheduleViewController: UIViewController, UITableViewDele
                                             type = lastComponent
                                         }
                                     } else if components.count == 2 {
-                                        // Тільки група і аудиторія/час
+                                        // Тільки група і тип/аудиторія
                                         groupName = removeHTMLTags(from: components[0])
                                         let secondComponent = removeHTMLTags(from: components[1])
-                                                   
+                                        
                                         if secondComponent.contains(":") {
                                             // Це час
                                             let timeComponents = secondComponent.components(separatedBy: "-")
@@ -471,18 +481,19 @@ class ResultTeacherExamScheduleViewController: UIViewController, UITableViewDele
                                                 timeEnd = timeComponents[1].trimmingCharacters(in: .whitespacesAndNewlines)
                                             }
                                         } else {
-                                            room = secondComponent
+                                            type = secondComponent
                                         }
-                                    } else {
+                                    } else if components.count == 1 {
                                         // Тільки група
                                         groupName = removeHTMLTags(from: components[0])
                                     }
-                                               
+                                    
+                                    // Додаємо інформацію про підгрупу
                                     if let subgroup = subgroupType {
                                         groupName += ", \(subgroup)"
                                     }
                                 }
-                                           
+                                
                                 // Перевіряємо наявність URL
                                 if let link = try? lessonContent.select("a[href]").first() {
                                     let href = try? link.attr("href")
@@ -490,54 +501,58 @@ class ResultTeacherExamScheduleViewController: UIViewController, UITableViewDele
                                         url = linkHref
                                     }
                                 }
-                                           
+                                
+                                // Встановлюємо значення за замовчуванням
                                 if lessonName.isEmpty { lessonName = "Невідомо" }
                                 if groupName.isEmpty { groupName = "Група не вказана" }
                                 if room.isEmpty { room = "Аудиторія не вказана" }
                                 if type.isEmpty { type = "Екзамен" }
-                                           
-                                // Якщо час не знайдено в тексті, використовуємо стандартний за номером пари
+                                
+                                // Якщо час не знайдено, використовуємо стандартний
                                 if timeStart.isEmpty {
                                     timeStart = getExamTimeStart(for: currentLessonNumber)
                                     timeEnd = getExamTimeEnd(for: currentLessonNumber)
                                 }
-                                           
+                                
                                 let lesson = Lesson(
                                     number: currentLessonNumber,
                                     name: lessonName,
-                                    teacher: groupName, // Тут зберігаємо групу (логіка викладачів)
+                                    teacher: groupName, // Зберігаємо групи в полі teacher
                                     room: room,
                                     type: type,
                                     timeStart: timeStart,
                                     timeEnd: timeEnd,
                                     url: url,
-                                    weekType: weekType
+                                    weekType: weekType,
+                                    isActiveThisWeek: isActiveThisWeek
                                 )
-                                           
+                                
                                 currentDaySchedule.lessons.append(lesson)
                             }
                         }
                     }
                 }
             }
-                       
+            
             // Додаємо останній день, якщо він не порожній
             if !currentDaySchedule.dayName.isEmpty && !currentDaySchedule.lessons.isEmpty {
                 scheduleDays.append(currentDaySchedule)
             }
-                       
+            
             if scheduleDays.isEmpty {
                 showAlert(title: "Інформація", message: "Розклад екзаменів не знайдено для викладача \(teacherName)")
             } else {
-                CATransaction.begin()
-                CATransaction.setDisableActions(true)
-                           
-                self.tableView.reloadData()
-                           
-                self.tableView.beginUpdates()
-                self.tableView.endUpdates()
-                           
-                CATransaction.commit()
+                DispatchQueue.main.async {
+                    CATransaction.begin()
+                    CATransaction.setDisableActions(true)
+                    
+                    self.tableView.reloadData()
+                    
+                    self.tableView.beginUpdates()
+                    self.tableView.endUpdates()
+                    
+                    CATransaction.commit()
+                }
             }
         } catch {
             showAlert(title: "Помилка парсингу", message: error.localizedDescription)
@@ -647,16 +662,7 @@ class ResultTeacherExamScheduleViewController: UIViewController, UITableViewDele
         if groupedLessons.count > indexPath.row {
             let lessonGroup = groupedLessons[indexPath.row]
                        
-            var baseHeight: CGFloat = 120 // Менша базова висота для екзаменів
-                       
-            // Перевіряємо наявність довгих списків груп
-            let hasLongGroupList = lessonGroup.contains { lesson in
-                lesson.teacher.count > 30
-            }
-                       
-            if hasLongGroupList {
-                baseHeight += 40 // Додаткове місце для довгих списків груп
-            }
+            var baseHeight: CGFloat = 190
                        
             let hasURL = lessonGroup.contains {
                 guard let url = $0.url else { return false }
@@ -668,7 +674,7 @@ class ResultTeacherExamScheduleViewController: UIViewController, UITableViewDele
             }
                        
             // Для екзаменів зазвичай немає підгруп та чергування тижнів
-            // Але на всякий випадок залишаємо спрощену логіку
+            // Але на всякий випадок залишаємо логіку
             let evenWeekLessons = lessonGroup.filter { $0.weekType == .even }
             let oddWeekLessons = lessonGroup.filter { $0.weekType == .odd }
             let hasAlternatingWeeks = (!evenWeekLessons.isEmpty || !oddWeekLessons.isEmpty)
@@ -678,17 +684,17 @@ class ResultTeacherExamScheduleViewController: UIViewController, UITableViewDele
             let hasSubgroups = (!subgroup1Lessons.isEmpty || !subgroup2Lessons.isEmpty)
                        
             if hasAlternatingWeeks && hasSubgroups {
-                baseHeight += 100
+                baseHeight += 120
             } else if hasSubgroups {
-                baseHeight += 40
+                baseHeight += 50
             } else if hasAlternatingWeeks {
-                baseHeight += 60
+                baseHeight += 150
             }
                          
             return baseHeight
         }
                      
-        return 120
+        return 190
     }
                      
     func numberOfSections(in tableView: UITableView) -> Int {

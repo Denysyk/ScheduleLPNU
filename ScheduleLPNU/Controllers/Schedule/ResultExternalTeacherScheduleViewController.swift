@@ -415,9 +415,12 @@ class ResultExternalTeacherScheduleViewController: UIViewController, UITableView
                         for lessonRow in lessonRows {
                             var weekType: WeekType = .full
                             
+                            var isActiveThisWeek = false
+
                             // Визначаємо тип тижня
                             if let divElement = try? lessonRow.select("[id^=group_]").first() {
                                 let divId = try? divElement.id()
+                                let divClass = try? divElement.className()
                                 
                                 if let id = divId {
                                     if id.contains("chys") {
@@ -425,6 +428,11 @@ class ResultExternalTeacherScheduleViewController: UIViewController, UITableView
                                     } else if id.contains("znam") {
                                         weekType = .odd
                                     }
+                                }
+                                
+                                // Визначаємо активність через week_color
+                                if let className = divClass, className.contains("week_color") {
+                                    isActiveThisWeek = true
                                 }
                             }
                             
@@ -503,7 +511,7 @@ class ResultExternalTeacherScheduleViewController: UIViewController, UITableView
                                     timeStart: getTimeStart(for: currentLessonNumber),
                                     timeEnd: getTimeEnd(for: currentLessonNumber),
                                     url: url,
-                                    weekType: weekType
+                                    weekType: weekType, isActiveThisWeek: isActiveThisWeek
                                 )
                                 
                                 lessonsForThisPair.append(lesson)

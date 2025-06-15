@@ -460,22 +460,17 @@ class ProgrammaticLessonCell: UITableViewCell {
             }
         }
         
-        switch lesson.weekType {
-        case .full:
+        // НОВА ЛОГІКА КОЛЬОРІВ: використовуємо isActiveThisWeek
+        if lesson.isActiveThisWeek {
+            // Активна пара - кольоровий градієнт
             gradientLayer.colors = [
                 theme.accentColor.cgColor,
                 theme.primaryGradientEnd.cgColor
             ]
             gradientLayer.startPoint = CGPoint(x: 0, y: 0)
             gradientLayer.endPoint = CGPoint(x: 1, y: 1)
-        case .even:
-            gradientLayer.colors = [
-                theme.accentColor.cgColor,
-                theme.primaryGradientEnd.cgColor
-            ]
-            gradientLayer.startPoint = CGPoint(x: 0, y: 0)
-            gradientLayer.endPoint = CGPoint(x: 1, y: 1)
-        case .odd:
+        } else {
+            // Неактивна пара - сірий фон
             gradientLayer.colors = [
                 theme.cardBackgroundColor.cgColor,
                 theme.secondaryCardBackgroundColor.cgColor
@@ -488,9 +483,9 @@ class ProgrammaticLessonCell: UITableViewCell {
         
         lessonView.layer.insertSublayer(gradientLayer, at: 0)
         
-        // Кольори тексту
-        let textColor: UIColor = (lesson.weekType == .odd) ? theme.textColor : .white
-        let titleColor: UIColor = (lesson.weekType == .odd) ? theme.accentColor : .white
+        // Кольори тексту: НОВА ЛОГІКА
+        let textColor: UIColor = lesson.isActiveThisWeek ? .white : theme.textColor
+        let titleColor: UIColor = lesson.isActiveThisWeek ? .white : theme.accentColor
         
         // Основний контейнер
         let contentContainer = UIView()
@@ -587,14 +582,14 @@ class ProgrammaticLessonCell: UITableViewCell {
             urlButton.setTitle(isFullWidth ? "URL онлайн-заняття" : "Посилання", for: .normal)
             urlButton.titleLabel?.font = .systemFont(ofSize: isFullWidth ? 13 : 12, weight: .semibold)
             
-            if lesson.weekType == .odd {
-                urlButton.setTitleColor(theme.accentColor, for: .normal)
-                urlButton.backgroundColor = theme.secondaryTextColor.withAlphaComponent(0.2)
-                urlButton.tintColor = theme.accentColor
-            } else {
+            if lesson.isActiveThisWeek {
                 urlButton.setTitleColor(.white, for: .normal)
                 urlButton.backgroundColor = UIColor(white: 1.0, alpha: 0.2)
                 urlButton.tintColor = .white
+            } else {
+                urlButton.setTitleColor(theme.accentColor, for: .normal)
+                urlButton.backgroundColor = theme.secondaryTextColor.withAlphaComponent(0.2)
+                urlButton.tintColor = theme.accentColor
             }
             
             urlButton.layer.cornerRadius = 8
@@ -603,77 +598,77 @@ class ProgrammaticLessonCell: UITableViewCell {
             if let linkImage = UIImage(systemName: "link") {
                 urlButton.setImage(linkImage, for: .normal)
                 urlButton.imageEdgeInsets = UIEdgeInsets(top: 0, left: -4, bottom: 0, right: 4)
-                           }
-                           
-                           urlButton.tag = lessonViews.count
-                           urlButton.addTarget(self, action: #selector(urlButtonTapped(_:)), for: .touchUpInside)
-                           
-                           mainStack.addArrangedSubview(urlButton)
-                           lessonURLButtons.append(urlButton)
-                           
-                           urlButton.heightAnchor.constraint(equalToConstant: 32).isActive = true
-                       } else if hasExtraSpaceForURL {
-                           let spacerView = UIView()
-                           spacerView.backgroundColor = .clear
-                           spacerView.translatesAutoresizingMaskIntoConstraints = false
-                           mainStack.addArrangedSubview(spacerView)
-                           spacerView.heightAnchor.constraint(equalToConstant: 32).isActive = true
                        }
                        
-                       lessonViews.append(lessonView)
+                       urlButton.tag = lessonViews.count
+                       urlButton.addTarget(self, action: #selector(urlButtonTapped(_:)), for: .touchUpInside)
                        
-                       // Оновлюємо градієнт
-                       DispatchQueue.main.async {
+                       mainStack.addArrangedSubview(urlButton)
+                       lessonURLButtons.append(urlButton)
+                       
+                       urlButton.heightAnchor.constraint(equalToConstant: 32).isActive = true
+                   } else if hasExtraSpaceForURL {
+                       let spacerView = UIView()
+                       spacerView.backgroundColor = .clear
+                       spacerView.translatesAutoresizingMaskIntoConstraints = false
+                       mainStack.addArrangedSubview(spacerView)
+                       spacerView.heightAnchor.constraint(equalToConstant: 32).isActive = true
+                   }
+                   
+                   lessonViews.append(lessonView)
+                   
+                   // Оновлюємо градієнт
+                   DispatchQueue.main.async {
+                       gradientLayer.frame = lessonView.bounds
+                   }
+                   
+                   return lessonView
+               }
+               
+               @objc private func urlButtonTapped(_ sender: UIButton) {
+                   let index = sender.tag
+                   if index >= 0 && index < self.lessonURLs.count {
+                       UIApplication.shared.open(self.lessonURLs[index])
+                   }
+               }
+                   
+               private func clearLessons() {
+                   for view in lessonViews {
+                       view.removeFromSuperview()
+                   }
+                   
+                   for button in lessonURLButtons {
+                       button.removeTarget(nil, action: nil, for: .allEvents)
+                       button.removeFromSuperview()
+                   }
+                   
+                   lessonViews.removeAll()
+                   lessonURLButtons.removeAll()
+                   lessonURLs.removeAll()
+                   
+                   for subview in lessonsContainerView.subviews {
+                       if subview is UIStackView {
+                           for stackSubview in subview.subviews {
+                               stackSubview.removeFromSuperview()
+                           }
+                       }
+                       subview.removeFromSuperview()
+                   }
+               }
+
+               override func prepareForReuse() {
+                   super.prepareForReuse()
+                   clearLessons()
+               }
+               
+               override func layoutSubviews() {
+                   super.layoutSubviews()
+                   
+                   // Оновлюємо градієнти
+                   for lessonView in lessonViews {
+                       if let gradientLayer = lessonView.layer.sublayers?.first as? CAGradientLayer {
                            gradientLayer.frame = lessonView.bounds
                        }
-                       
-                       return lessonView
                    }
-                   
-                   @objc private func urlButtonTapped(_ sender: UIButton) {
-                       let index = sender.tag
-                       if index >= 0 && index < self.lessonURLs.count {
-                           UIApplication.shared.open(self.lessonURLs[index])
-                       }
-                   }
-                       
-                   private func clearLessons() {
-                       for view in lessonViews {
-                           view.removeFromSuperview()
-                       }
-                       
-                       for button in lessonURLButtons {
-                           button.removeTarget(nil, action: nil, for: .allEvents)
-                           button.removeFromSuperview()
-                       }
-                       
-                       lessonViews.removeAll()
-                       lessonURLButtons.removeAll()
-                       lessonURLs.removeAll()
-                       
-                       for subview in lessonsContainerView.subviews {
-                           if subview is UIStackView {
-                               for stackSubview in subview.subviews {
-                                   stackSubview.removeFromSuperview()
-                               }
-                           }
-                           subview.removeFromSuperview()
-                       }
-                   }
-
-                   override func prepareForReuse() {
-                       super.prepareForReuse()
-                       clearLessons()
-                   }
-                   
-                   override func layoutSubviews() {
-                       super.layoutSubviews()
-                       
-                       // Оновлюємо градієнти
-                       for lessonView in lessonViews {
-                           if let gradientLayer = lessonView.layer.sublayers?.first as? CAGradientLayer {
-                               gradientLayer.frame = lessonView.bounds
-                           }
-                       }
-                   }
-                }
+               }
+            }

@@ -383,10 +383,13 @@ class ResultElectiveScheduleViewController: UIViewController, UITableViewDelegat
                                     var weekType: WeekType = .full
                                     var subgroupType: String?
                                     
+                                    var isActiveThisWeek = false
+
                                     // Визначаємо тип тижня та підгрупи
                                     if let divElement = try? lessonRow.select("[id^=group_], [id^=sub_]").first() {
                                         let divId = try? divElement.id()
-                                        
+                                        let divClass = try? divElement.className()
+
                                         if let id = divId {
                                             if id.contains("chys") {
                                                 weekType = .even
@@ -399,6 +402,11 @@ class ResultElectiveScheduleViewController: UIViewController, UITableViewDelegat
                                             } else if id.contains("sub_2") {
                                                 subgroupType = "підгрупа 2"
                                             }
+                                        }
+                                        
+                                        // Визначаємо активність через week_color
+                                        if let className = divClass, className.contains("week_color") {
+                                            isActiveThisWeek = true
                                         }
                                     }
                                     
@@ -463,7 +471,8 @@ class ResultElectiveScheduleViewController: UIViewController, UITableViewDelegat
                                             timeStart: getTimeStart(for: currentLessonNumber),
                                             timeEnd: getTimeEnd(for: currentLessonNumber),
                                             url: url,
-                                            weekType: weekType
+                                            weekType: weekType,
+                                            isActiveThisWeek: isActiveThisWeek
                                         )
                                         
                                         daySchedule.lessons.append(lesson)

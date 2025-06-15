@@ -402,13 +402,15 @@ class ResultStudentScheduleViewController: UIViewController, UITableViewDelegate
                                     // Визначаємо тип тижня та підгрупи
                                     var weekType: WeekType = .full
                                     var subgroupType: String?
-                                    
+                                    var isActiveThisWeek = false
+
                                     // Шукаємо divElement для визначення типу тижня та підгрупи
                                     if let divElement = try? lessonRow.select("[id^=group_], [id^=sub_]").first() {
                                         let divId = try? divElement.id()
-                                        
+                                        let divClass = try? divElement.className()
+
                                         if let id = divId {
-                                            // Визначаємо тип тижня
+                                            // Визначаємо тип тижня - ЗАЛИШАЄМО ОРИГІНАЛЬНУ ЛОГІКУ!
                                             if id.contains("chys") {
                                                 weekType = .even
                                             } else if id.contains("znam") {
@@ -421,6 +423,11 @@ class ResultStudentScheduleViewController: UIViewController, UITableViewDelegate
                                             } else if id.contains("sub_2") {
                                                 subgroupType = "підгрупа 2"
                                             }
+                                        }
+                                        
+                                        // Визначаємо активність через week_color
+                                        if let className = divClass, className.contains("week_color") {
+                                            isActiveThisWeek = true
                                         }
                                     }
                                     
@@ -492,7 +499,8 @@ class ResultStudentScheduleViewController: UIViewController, UITableViewDelegate
                                             timeStart: getTimeStart(for: currentLessonNumber),
                                             timeEnd: getTimeEnd(for: currentLessonNumber),
                                             url: url,
-                                            weekType: weekType
+                                            weekType: weekType,
+                                            isActiveThisWeek: isActiveThisWeek
                                         )
                                         
                                         // Додаємо заняття - незалежно від типу тижня
