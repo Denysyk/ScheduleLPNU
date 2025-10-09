@@ -431,7 +431,7 @@ class ResultExternalStudentScheduleViewController: UIViewController, UITableView
                                         // Парсимо вміст заняття
                                         if let lessonContent = try? lessonRow.select(".group_content").first() {
                                             // Зберігаємо весь HTML-вміст для обробки
-                                            let lessonHtml = try? lessonContent.html() ?? ""
+                                            let lessonHtml = try? lessonContent.html()
                                             
                                             // Обробляємо HTML для виділення тексту
                                             let lessonText = lessonHtml?.replacingOccurrences(of: "<br>", with: "\n")
