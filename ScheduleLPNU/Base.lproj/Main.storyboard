@@ -420,7 +420,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="5BP-cO-Ewf">
-                                <rect key="frame" x="0.0" y="103" width="393" height="666"/>
+                                <rect key="frame" x="0.0" y="172" width="393" height="563"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                             </tableView>
                         </subviews>
@@ -655,7 +655,6 @@
                     <navigationItem key="navigationItem" title="ЗАВДАННЯ" id="Lvm-Rb-Vow"/>
                     <connections>
                         <outlet property="addButton" destination="O1t-AR-lZS" id="NBm-Du-reY"/>
-                        <outlet property="emptyStateLabel" destination="Llc-Cn-qte" id="ubo-LV-I3d"/>
                         <outlet property="emptyStateView" destination="AqR-Bs-MGw" id="TJk-Jc-9lu"/>
                         <outlet property="tableView" destination="xWs-7M-tS8" id="Ibe-dw-gNp"/>
                         <segue destination="wu7-qu-ctq" kind="show" identifier="showAddTask" id="tew-9P-gpY"/>
@@ -780,6 +779,7 @@
                     </tabBarItem>
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="RF5-jb-phL">
+                        <rect key="frame" x="0.0" y="118" width="393" height="54"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <nil name="viewControllers"/>

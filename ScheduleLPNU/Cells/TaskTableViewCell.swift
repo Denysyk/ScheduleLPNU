@@ -1,3 +1,8 @@
+//
+//  TaskTableViewCell.swift
+//  ScheduleLPNU
+//
+
 import UIKit
 
 class TaskTableViewCell: UITableViewCell {
@@ -15,6 +20,7 @@ class TaskTableViewCell: UITableViewCell {
     private let categoryLabel = UILabel()
     private let tagsStackView = UIStackView()
     private let tagsScrollView = UIScrollView()
+    private let calendarIndicator = UIImageView() // НОВЕ
     
     var onCompletionToggle: ((String) -> Void)?
     private var taskId: String?
@@ -53,14 +59,11 @@ class TaskTableViewCell: UITableViewCell {
     private func applyTheme() {
         let theme = ThemeManager.shared
         
-        // Background
         backgroundColor = .clear
         contentView.backgroundColor = .clear
         
-        // Container
         containerView.backgroundColor = theme.cardBackgroundColor
         
-        // Shadow only for light theme
         if theme.isDarkMode {
             containerView.layer.shadowOpacity = 0
         } else {
@@ -70,7 +73,6 @@ class TaskTableViewCell: UITableViewCell {
             containerView.layer.shadowOpacity = 0.08
         }
         
-        // Text colors
         titleLabel.textColor = theme.textColor
         descriptionLabel.textColor = theme.secondaryTextColor
         dueDateLabel.textColor = theme.secondaryTextColor
@@ -78,46 +80,35 @@ class TaskTableViewCell: UITableViewCell {
         categoryLabel.textColor = theme.accentColor
         categoryIconView.tintColor = theme.accentColor
         
-        // Category view
         categoryView.backgroundColor = theme.accentColor.withAlphaComponent(0.1)
         
-        // Completion button border
         completionButton.layer.borderColor = theme.secondaryTextColor.cgColor
     }
     
     private func setupUI() {
         selectionStyle = .none
         
-        // Container view
         containerView.layer.cornerRadius = 12
         containerView.layer.masksToBounds = false
         
-        // Labels setup
         titleLabel.font = .boldSystemFont(ofSize: 16)
         titleLabel.numberOfLines = 0
         
         descriptionLabel.font = .systemFont(ofSize: 14)
         descriptionLabel.numberOfLines = 2
         
-        // Priority view
         priorityView.layer.cornerRadius = 10
         priorityLabel.font = .systemFont(ofSize: 12, weight: .medium)
         priorityLabel.textColor = .white
         priorityLabel.textAlignment = .center
         
-        // Category view
         categoryView.layer.cornerRadius = 8
-        
         categoryIconView.contentMode = .scaleAspectFit
         categoryLabel.font = .systemFont(ofSize: 12, weight: .medium)
         
-        // Due date label
         dueDateLabel.font = .systemFont(ofSize: 12)
-        
-        // Schedule label
         scheduleLabel.font = .systemFont(ofSize: 12)
         
-        // Tags setup
         tagsScrollView.showsHorizontalScrollIndicator = false
         tagsScrollView.showsVerticalScrollIndicator = false
         
@@ -125,21 +116,24 @@ class TaskTableViewCell: UITableViewCell {
         tagsStackView.spacing = 6
         tagsStackView.alignment = .center
         
-        // Completion button
         completionButton.layer.cornerRadius = 12
         completionButton.layer.borderWidth = 2
         completionButton.addTarget(self, action: #selector(completionButtonTapped), for: .touchUpInside)
         
-        // Add to container
+        // НОВЕ: Налаштування індикатора календаря
+        calendarIndicator.image = UIImage(systemName: "calendar.badge.clock")
+        calendarIndicator.contentMode = .scaleAspectFit
+        calendarIndicator.tintColor = .systemBlue
+        calendarIndicator.isHidden = true
+        
         contentView.addSubview(containerView)
         
-        // Add elements to container
-        [titleLabel, descriptionLabel, priorityView, dueDateLabel, completionButton, scheduleLabel, categoryView, tagsScrollView].forEach {
+        [titleLabel, descriptionLabel, priorityView, dueDateLabel, completionButton,
+         scheduleLabel, categoryView, tagsScrollView, calendarIndicator].forEach {
             containerView.addSubview($0)
             $0.translatesAutoresizingMaskIntoConstraints = false
         }
         
-        // Add sub-elements
         priorityView.addSubview(priorityLabel)
         categoryView.addSubview(categoryIconView)
         categoryView.addSubview(categoryLabel)
@@ -156,77 +150,69 @@ class TaskTableViewCell: UITableViewCell {
         tagsStackView.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            // Container
             containerView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 6),
             containerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             containerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
             containerView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -6),
             
-            // Completion button
             completionButton.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 16),
             completionButton.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 16),
             completionButton.widthAnchor.constraint(equalToConstant: 24),
             completionButton.heightAnchor.constraint(equalToConstant: 24),
             
-            // Title
             titleLabel.leadingAnchor.constraint(equalTo: completionButton.trailingAnchor, constant: 12),
             titleLabel.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 16),
-            titleLabel.trailingAnchor.constraint(equalTo: priorityView.leadingAnchor, constant: -8),
+            titleLabel.trailingAnchor.constraint(equalTo: calendarIndicator.leadingAnchor, constant: -8),
             
-            // Priority view
+            // НОВЕ: Індикатор календаря
+            calendarIndicator.trailingAnchor.constraint(equalTo: priorityView.leadingAnchor, constant: -8),
+            calendarIndicator.centerYAnchor.constraint(equalTo: priorityView.centerYAnchor),
+            calendarIndicator.widthAnchor.constraint(equalToConstant: 20),
+            calendarIndicator.heightAnchor.constraint(equalToConstant: 20),
+            
             priorityView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -16),
             priorityView.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 16),
             priorityView.widthAnchor.constraint(equalToConstant: 70),
             priorityView.heightAnchor.constraint(equalToConstant: 20),
             
-            // Priority label
             priorityLabel.centerXAnchor.constraint(equalTo: priorityView.centerXAnchor),
             priorityLabel.centerYAnchor.constraint(equalTo: priorityView.centerYAnchor),
             
-            // Description
             descriptionLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
             descriptionLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 4),
             descriptionLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -16),
             
-            // Category view
             categoryView.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
             categoryView.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: 8),
             categoryView.heightAnchor.constraint(equalToConstant: 24),
             
-            // Category icon
             categoryIconView.leadingAnchor.constraint(equalTo: categoryView.leadingAnchor, constant: 6),
             categoryIconView.centerYAnchor.constraint(equalTo: categoryView.centerYAnchor),
             categoryIconView.widthAnchor.constraint(equalToConstant: 16),
             categoryIconView.heightAnchor.constraint(equalToConstant: 16),
             
-            // Category label
             categoryLabel.leadingAnchor.constraint(equalTo: categoryIconView.trailingAnchor, constant: 4),
             categoryLabel.centerYAnchor.constraint(equalTo: categoryView.centerYAnchor),
             categoryLabel.trailingAnchor.constraint(equalTo: categoryView.trailingAnchor, constant: -6),
             
-            // Tags scroll view
             tagsScrollView.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
             tagsScrollView.topAnchor.constraint(equalTo: categoryView.bottomAnchor, constant: 8),
             tagsScrollView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -16),
             tagsScrollView.heightAnchor.constraint(equalToConstant: 20),
             
-            // Tags stack view
             tagsStackView.topAnchor.constraint(equalTo: tagsScrollView.topAnchor),
             tagsStackView.leadingAnchor.constraint(equalTo: tagsScrollView.leadingAnchor),
             tagsStackView.trailingAnchor.constraint(equalTo: tagsScrollView.trailingAnchor),
             tagsStackView.bottomAnchor.constraint(equalTo: tagsScrollView.bottomAnchor),
             tagsStackView.heightAnchor.constraint(equalTo: tagsScrollView.heightAnchor),
             
-            // Date
             dueDateLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
             dueDateLabel.topAnchor.constraint(equalTo: tagsScrollView.bottomAnchor, constant: 8),
             
-            // Schedule
             scheduleLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -16),
             scheduleLabel.centerYAnchor.constraint(equalTo: dueDateLabel.centerYAnchor),
             scheduleLabel.leadingAnchor.constraint(greaterThanOrEqualTo: dueDateLabel.trailingAnchor, constant: 8),
             
-            // Bottom constraint
             containerView.bottomAnchor.constraint(greaterThanOrEqualTo: dueDateLabel.bottomAnchor, constant: 16)
         ])
     }
@@ -235,7 +221,6 @@ class TaskTableViewCell: UITableViewCell {
         taskId = task.id
         titleLabel.text = task.title
         
-        // Description
         if let description = task.description, !description.isEmpty {
             descriptionLabel.text = description
             descriptionLabel.isHidden = false
@@ -243,18 +228,17 @@ class TaskTableViewCell: UITableViewCell {
             descriptionLabel.isHidden = true
         }
         
-        // Priority
         priorityLabel.text = task.priority.rawValue
         priorityView.backgroundColor = task.priority.color
         
-        // Category
         categoryLabel.text = task.category.rawValue
         categoryIconView.image = UIImage(systemName: task.category.icon)
         
-        // Tags
         setupTags(task.tags)
         
-        // Due date - ПРИБИРАЄМО WARNING ЗНАК
+        // НОВЕ: Показуємо індикатор календаря
+        calendarIndicator.isHidden = !task.isInCalendar
+        
         if let dueDate = task.dueDate {
             let formatter = DateFormatter()
             formatter.locale = Locale(identifier: "uk_UA")
@@ -268,14 +252,12 @@ class TaskTableViewCell: UITableViewCell {
             dueDateLabel.text = ""
         }
         
-        // Schedule connection
         if let schedule = task.associatedSchedule {
             scheduleLabel.text = "🗓 \(schedule)"
         } else {
             scheduleLabel.text = ""
         }
         
-        // Completion state
         updateCompletionState(task.isCompleted)
     }
     
@@ -297,10 +279,8 @@ class TaskTableViewCell: UITableViewCell {
                 self.containerView.layer.borderWidth = 1.5
                 self.containerView.layer.borderColor = selectionColor.withAlphaComponent(0.4).cgColor
                 
-                // Видаляємо стару іконку якщо є
                 self.containerView.subviews.first(where: { $0.tag == 999 })?.removeFromSuperview()
                 
-                // Додаємо стильну іконку
                 let checkIcon = UIView()
                 checkIcon.tag = 999
                 checkIcon.backgroundColor = selectionColor
@@ -465,6 +445,7 @@ class TaskTableViewCell: UITableViewCell {
         scheduleLabel.text = nil
         categoryLabel.text = nil
         categoryIconView.image = nil
+        calendarIndicator.isHidden = true
         
         tagsStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
         tagsScrollView.isHidden = true

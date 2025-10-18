@@ -13,7 +13,6 @@ class TaskViewController: UIViewController {
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var addButton: UIButton!
     @IBOutlet weak var emptyStateView: UIView!
-    @IBOutlet weak var emptyStateLabel: UILabel!
     
     private var tasks: [Task] = []
     private var filteredTasks: [Task] = []
@@ -23,7 +22,6 @@ class TaskViewController: UIViewController {
     private var selectedCategory: Task.TaskCategory?
     private var searchController: UISearchController!
     
-    // Змінні для множинного вибору
     private var isSelectionMode = false
     private var selectedTaskIds: Set<String> = []
 
@@ -34,6 +32,8 @@ class TaskViewController: UIViewController {
         case alphabetical = "За алфавітом"
     }
 
+    // MARK: - Lifecycle
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
@@ -42,14 +42,9 @@ class TaskViewController: UIViewController {
         applyTheme()
         loadTasks()
         
-        // Request notification permission
         NotificationManager.shared.requestPermission { granted in
-            if granted {
-                NotificationManager.shared.scheduleReminderNotifications()
-                NotificationManager.shared.scheduleMotivationalReminders()
-            }
+            // Просто запитуємо дозвіл, без додаткових сповіщень
         }
-        
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -60,8 +55,6 @@ class TaskViewController: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        
-        // Очищуємо badge при відкритті програми
         UIApplication.shared.applicationIconBadgeNumber = 0
         UNUserNotificationCenter.current().removeAllDeliveredNotifications()
     }
@@ -70,24 +63,7 @@ class TaskViewController: UIViewController {
         NotificationCenter.default.removeObserver(self)
     }
 
-    private func showNotificationPermissionAlert() {
-        let alert = UIAlertController(
-            title: "Дозволи на сповіщення",
-            message: "Для роботи нагадувань потрібні дозволи на сповіщення. Перейти в налаштування?",
-            preferredStyle: .alert
-        )
-        
-        alert.addAction(UIAlertAction(title: "Налаштування", style: .default) { _ in
-            if let settingsUrl = URL(string: UIApplication.openSettingsURLString) {
-                UIApplication.shared.open(settingsUrl)
-            }
-        })
-        
-        alert.addAction(UIAlertAction(title: "Скасувати", style: .cancel))
-        
-        present(alert, animated: true)
-    }
-
+    // MARK: - Setup
     
     private func setupThemeObserver() {
         NotificationCenter.default.addObserver(
@@ -105,70 +81,51 @@ class TaskViewController: UIViewController {
     private func applyTheme() {
         let theme = ThemeManager.shared
         
-        // Background
         view.backgroundColor = theme.backgroundColor
-        
-        // Navigation
-        navigationController?.navigationBar.titleTextAttributes = [
-            NSAttributedString.Key.foregroundColor: theme.accentColor,
-            NSAttributedString.Key.font: UIFont.systemFont(ofSize: 17, weight: .semibold)
-        ]
-        
-        // Buttons in navigation bar
-        navigationItem.leftBarButtonItems?.forEach { $0.tintColor = theme.accentColor }
-        navigationItem.rightBarButtonItems?.forEach { $0.tintColor = theme.accentColor }
-        
-        // Add button
-        addButton.backgroundColor = theme.accentColor
-        
-        // Table view
         tableView.backgroundColor = theme.backgroundColor
         
-        // Empty state
-        emptyStateView.backgroundColor = theme.backgroundColor
-        emptyStateLabel.textColor = theme.secondaryTextColor
+        addButton.backgroundColor = theme.accentColor
+        addButton.tintColor = .white
         
-        // Search bar
-        if let textField = searchController?.searchBar.value(forKey: "searchField") as? UITextField {
-            textField.textColor = theme.textColor
+        navigationController?.navigationBar.tintColor = theme.accentColor
+        navigationController?.navigationBar.titleTextAttributes = [
+            NSAttributedString.Key.foregroundColor: theme.textColor
+        ]
+        
+        if let searchController = searchController {
+            searchController.searchBar.tintColor = theme.accentColor
+            if let textField = searchController.searchBar.value(forKey: "searchField") as? UITextField {
+                textField.textColor = theme.textColor
+            }
         }
-        searchController?.searchBar.tintColor = theme.accentColor
         
-        // Reload table to update cells
         tableView.reloadData()
     }
     
     private func setupUI() {
-        // Простий заголовок
         title = "ЗАВДАННЯ"
         
         let theme = ThemeManager.shared
         
-        // ЛІВА СТОРОНА: Фільтр + Множинний вибір
         let filterButton = UIBarButtonItem(
-            image: UIImage(systemName: "line.3.horizontal.decrease"),
+            image: UIImage(systemName: "line.3.horizontal.decrease.circle"),
             style: .plain,
             target: self,
             action: #selector(showFilterOptions)
         )
         
-        let selectButton = UIBarButtonItem(
-            image: UIImage(systemName: "checkmark.square"),
-            style: .plain,
-            target: self,
-            action: #selector(toggleSelectionMode)
-        )
-        
-        filterButton.tintColor = theme.accentColor
-        selectButton.tintColor = theme.accentColor
-        navigationItem.leftBarButtonItems = [filterButton, selectButton]
-        
-        // ПРАВА СТОРОНА: Сортування + Статистика
         let sortButton = UIBarButtonItem(
             image: UIImage(systemName: "arrow.up.arrow.down"),
             style: .plain,
             target: self,
             action: #selector(showSortOptions)
+        )
+        
+        let selectButton = UIBarButtonItem(
+            image: UIImage(systemName: "checkmark.circle"),
+            style: .plain,
+            target: self,
+            action: #selector(toggleSelectionMode)
         )
         
         let statsButton = UIBarButtonItem(
@@ -178,31 +135,19 @@ class TaskViewController: UIViewController {
             action: #selector(showStatistics)
         )
         
+        filterButton.tintColor = theme.accentColor
         sortButton.tintColor = theme.accentColor
+        selectButton.tintColor = theme.accentColor
         statsButton.tintColor = theme.accentColor
-        navigationItem.rightBarButtonItems = [statsButton, sortButton]
         
-        // Setup add button
-        addButton.setImage(UIImage(systemName: "plus"), for: .normal)
-        addButton.tintColor = .white
-        addButton.layer.cornerRadius = 30
-        addButton.layer.shadowColor = UIColor.black.cgColor
+        navigationItem.rightBarButtonItems = [selectButton, sortButton, filterButton]
+        navigationItem.leftBarButtonItems = [statsButton]
+        
+        addButton.layer.cornerRadius = 28
+        addButton.layer.shadowColor = theme.accentColor.cgColor
         addButton.layer.shadowOffset = CGSize(width: 0, height: 4)
         addButton.layer.shadowRadius = 8
         addButton.layer.shadowOpacity = 0.3
-        
-        // Empty state
-        emptyStateLabel.text = "Список завдань пустий\nДодайте нове завдання натиснувши кнопку +"
-        emptyStateLabel.textAlignment = .center
-        emptyStateLabel.numberOfLines = 0
-        emptyStateLabel.font = UIFont.systemFont(ofSize: 16)
-        
-        // Setup search
-        setupSearch()
-    }
-    
-    private func setupSearch() {
-        let theme = ThemeManager.shared
         
         searchController = UISearchController(searchResultsController: nil)
         searchController.searchResultsUpdater = self
@@ -210,7 +155,6 @@ class TaskViewController: UIViewController {
         searchController.searchBar.placeholder = "Пошук завдань..."
         searchController.searchBar.tintColor = theme.accentColor
         
-        // Стилізація search bar
         if let textField = searchController.searchBar.value(forKey: "searchField") as? UITextField {
             textField.textColor = theme.textColor
         }
@@ -224,10 +168,10 @@ class TaskViewController: UIViewController {
         tableView.delegate = self
         tableView.dataSource = self
         tableView.separatorStyle = .none
-        
-        // Register custom cell
         tableView.register(TaskTableViewCell.self, forCellReuseIdentifier: "TaskCell")
     }
+    
+    // MARK: - Data Management
     
     private func loadTasks() {
         tasks = TaskManager.shared.loadTasks()
@@ -250,7 +194,6 @@ class TaskViewController: UIViewController {
     private func applyFilter() {
         var tasksToShow: [Task]
         
-        // Спочатку застосовуємо пошук
         if let searchText = searchController?.searchBar.text, !searchText.isEmpty {
             tasksToShow = allTasks.filter { task in
                 task.title.localizedCaseInsensitiveContains(searchText) ||
@@ -262,26 +205,21 @@ class TaskViewController: UIViewController {
             tasksToShow = allTasks
         }
         
-        // Фільтруємо по категорії
         if let category = selectedCategory {
             tasksToShow = tasksToShow.filter { $0.category == category }
         }
         
-        // Потім фільтруємо по статусу виконання
         if !showCompletedTasks {
             tasksToShow = tasksToShow.filter { !$0.isCompleted }
         }
         
-        // Застосовуємо сортування
         filteredTasks = applySorting(to: tasksToShow)
     }
     
     private func applySorting(to tasks: [Task]) -> [Task] {
-        // СПОЧАТКУ розділяємо на виконані та не виконані
         let completedTasks = tasks.filter { $0.isCompleted }
         let incompleteTasks = tasks.filter { !$0.isCompleted }
         
-        // Сортуємо кожну групу окремо
         let sortedIncomplete: [Task]
         let sortedCompleted: [Task]
         
@@ -328,7 +266,6 @@ class TaskViewController: UIViewController {
             sortedCompleted = completedTasks.sorted { $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending }
         }
         
-        // АВТОМАТИЧНО: спочатку не виконані, потім виконані
         return sortedIncomplete + sortedCompleted
     }
 
@@ -344,13 +281,73 @@ class TaskViewController: UIViewController {
         if filteredTasks.isEmpty {
             tableView.isHidden = true
             emptyStateView.isHidden = false
+            
+            let theme = ThemeManager.shared
+            
+            // Очищуємо попередній вміст
+            emptyStateView.subviews.forEach { $0.removeFromSuperview() }
+            
+            let stackView = UIStackView()
+            stackView.axis = .vertical
+            stackView.spacing = 20
+            stackView.alignment = .center
+            stackView.translatesAutoresizingMaskIntoConstraints = false
+            emptyStateView.addSubview(stackView)
+            
+            // Іконка (як на екрані розкладу)
+            let iconContainer = UIView()
+            iconContainer.translatesAutoresizingMaskIntoConstraints = false
+            
+            let iconImageView = UIImageView(image: UIImage(systemName: "list.bullet.clipboard"))
+            iconImageView.tintColor = theme.secondaryTextColor.withAlphaComponent(0.4)
+            iconImageView.contentMode = .scaleAspectFit
+            iconImageView.translatesAutoresizingMaskIntoConstraints = false
+            iconContainer.addSubview(iconImageView)
+            
+            NSLayoutConstraint.activate([
+                iconImageView.centerXAnchor.constraint(equalTo: iconContainer.centerXAnchor),
+                iconImageView.centerYAnchor.constraint(equalTo: iconContainer.centerYAnchor),
+                iconImageView.widthAnchor.constraint(equalToConstant: 100),
+                iconImageView.heightAnchor.constraint(equalToConstant: 100),
+                iconContainer.widthAnchor.constraint(equalToConstant: 120),
+                iconContainer.heightAnchor.constraint(equalToConstant: 120)
+            ])
+            
+            // Заголовок
+            let titleLabel = UILabel()
+            titleLabel.font = .systemFont(ofSize: 20, weight: .semibold)
+            titleLabel.textColor = theme.secondaryTextColor
+            titleLabel.textAlignment = .center
+            titleLabel.numberOfLines = 0
+            
+            // Підзаголовок
+            let subtitleLabel = UILabel()
+            subtitleLabel.font = .systemFont(ofSize: 16)
+            subtitleLabel.textColor = theme.secondaryTextColor.withAlphaComponent(0.7)
+            subtitleLabel.textAlignment = .center
+            subtitleLabel.numberOfLines = 0
+            
             if let searchText = searchController?.searchBar.text, !searchText.isEmpty {
-                emptyStateLabel.text = "Завдань за запитом '\(searchText)' не знайдено"
+                titleLabel.text = "Нічого не знайдено"
+                subtitleLabel.text = "Спробуйте змінити запит пошуку"
             } else if selectedCategory != nil {
-                emptyStateLabel.text = "Завдань у цій категорії не знайдено"
+                titleLabel.text = "Список порожній"
+                subtitleLabel.text = "У цій категорії ще немає завдань"
             } else {
-                emptyStateLabel.text = "Список завдань пустий\nДодайте нове завдання, натиснувши кнопку +"
+                titleLabel.text = "Список завдань пустий"
+                subtitleLabel.text = "Натисніть + щоб додати нове завдання\nта почати організовувати свій день"
             }
+            
+            stackView.addArrangedSubview(iconContainer)
+            stackView.addArrangedSubview(titleLabel)
+            stackView.addArrangedSubview(subtitleLabel)
+            
+            NSLayoutConstraint.activate([
+                stackView.centerXAnchor.constraint(equalTo: emptyStateView.centerXAnchor),
+                stackView.centerYAnchor.constraint(equalTo: emptyStateView.centerYAnchor),
+                stackView.leadingAnchor.constraint(greaterThanOrEqualTo: emptyStateView.leadingAnchor, constant: 40),
+                stackView.trailingAnchor.constraint(lessThanOrEqualTo: emptyStateView.trailingAnchor, constant: -40)
+            ])
         } else {
             tableView.isHidden = false
             emptyStateView.isHidden = true
@@ -358,7 +355,8 @@ class TaskViewController: UIViewController {
         }
     }
     
-    // МНОЖИННИЙ ВИБІР
+    // MARK: - Selection Mode
+    
     @objc private func toggleSelectionMode() {
         isSelectionMode.toggle()
         selectedTaskIds.removeAll()
@@ -366,7 +364,6 @@ class TaskViewController: UIViewController {
         let theme = ThemeManager.shared
         
         if isSelectionMode {
-            // В режимі вибору показуємо дії
             let cancelButton = UIBarButtonItem(title: "Скасувати", style: .plain, target: self, action: #selector(cancelSelection))
             let actionButton = UIBarButtonItem(title: "Дії", style: .done, target: self, action: #selector(showSelectionActions))
             
@@ -378,7 +375,6 @@ class TaskViewController: UIViewController {
             
             title = "Виберіть завдання"
         } else {
-            // Повертаємо звичайний інтерфейс
             title = "ЗАВДАННЯ"
             setupUI()
         }
@@ -395,7 +391,6 @@ class TaskViewController: UIViewController {
         let selectedCount = selectedTaskIds.count
         
         if selectedCount == 0 {
-            // Швидкий вибір
             let alert = UIAlertController(title: "Швидкий вибір", message: nil, preferredStyle: .actionSheet)
             
             alert.addAction(UIAlertAction(title: "Вибрати всі", style: .default) { [weak self] _ in
@@ -410,14 +405,12 @@ class TaskViewController: UIViewController {
             
             alert.addAction(UIAlertAction(title: "Скасувати", style: .cancel))
             
-            // Для iPad
             if let popover = alert.popoverPresentationController {
                 popover.barButtonItem = navigationItem.rightBarButtonItems?.first
             }
             
             present(alert, animated: true)
         } else {
-            // Дії з вибраними
             let alert = UIAlertController(title: "Дії з вибраними (\(selectedCount))", message: nil, preferredStyle: .actionSheet)
             
             alert.addAction(UIAlertAction(title: "✅ Позначити як виконані", style: .default) { [weak self] _ in
@@ -434,7 +427,6 @@ class TaskViewController: UIViewController {
             
             alert.addAction(UIAlertAction(title: "Скасувати", style: .cancel))
             
-            // Для iPad
             if let popover = alert.popoverPresentationController {
                 popover.barButtonItem = navigationItem.rightBarButtonItems?.first
             }
@@ -443,10 +435,8 @@ class TaskViewController: UIViewController {
         }
     }
     
-    // ЗАМІНІТЬ ІСНУЮЧИЙ МЕТОД markSelectedTasks
     private func markSelectedTasks(completed: Bool) {
         for taskId in selectedTaskIds {
-            // Використовуємо новий спосіб
             if completed {
                 TaskManager.shared.completeTask(withId: taskId)
             } else {
@@ -458,23 +448,18 @@ class TaskViewController: UIViewController {
         loadTasks()
     }
 
-    // ВИПРАВЛЕНО: Безпечне видалення завдань
     private func deleteSelectedTasks() {
         let alert = UIAlertController(title: "Видалити завдання", message: "Видалити \(selectedTaskIds.count) завдань?", preferredStyle: .alert)
         
         alert.addAction(UIAlertAction(title: "Видалити", style: .destructive) { [weak self] _ in
             guard let self = self else { return }
             
-            // Видаляємо завдання
             for taskId in self.selectedTaskIds {
                 NotificationManager.shared.cancelNotification(for: taskId)
                 TaskManager.shared.deleteTask(withId: taskId)
             }
             
-            // Вимикаємо режим вибору
             self.toggleSelectionMode()
-            
-            // НАЙПРОСТІШЕ: Повністю перезавантажуємо все
             self.loadTasks()
         })
         
@@ -482,7 +467,8 @@ class TaskViewController: UIViewController {
         present(alert, animated: true)
     }
     
-    // СОРТУВАННЯ - окрема кнопка
+    // MARK: - Actions
+    
     @objc private func showSortOptions() {
         let alert = UIAlertController(title: "Сортування", message: "Поточне: \(currentSortOption.rawValue)", preferredStyle: .actionSheet)
         
@@ -493,7 +479,6 @@ class TaskViewController: UIViewController {
                 self?.updateUI()
             }
             
-            // Відмічаємо поточну опцію
             if sortOption == currentSortOption {
                 action.setValue(UIImage(systemName: "checkmark"), forKey: "image")
             }
@@ -503,7 +488,6 @@ class TaskViewController: UIViewController {
         
         alert.addAction(UIAlertAction(title: "Скасувати", style: .cancel))
         
-        // Для iPad
         if let popover = alert.popoverPresentationController {
             popover.barButtonItem = navigationItem.rightBarButtonItems?.last
         }
@@ -511,11 +495,9 @@ class TaskViewController: UIViewController {
         present(alert, animated: true)
     }
     
-    // ФІЛЬТРИ - окрема кнопка
     @objc private func showFilterOptions() {
         let alert = UIAlertController(title: "Фільтри", message: nil, preferredStyle: .actionSheet)
         
-        // Статус завдань
         alert.addAction(UIAlertAction(title: "Показати всі завдання", style: .default) { [weak self] _ in
             self?.showCompletedTasks = true
             self?.selectedCategory = nil
@@ -530,10 +512,8 @@ class TaskViewController: UIViewController {
             self?.updateUI()
         })
         
-        // Роздільник
         alert.addAction(UIAlertAction(title: "--- Категорії ---", style: .default) { _ in })
         
-        // Категорії
         for category in Task.TaskCategory.allCases {
             let action = UIAlertAction(title: "\(getCategoryEmoji(category)) \(category.rawValue)", style: .default) { [weak self] _ in
                 self?.selectedCategory = category
@@ -542,7 +522,6 @@ class TaskViewController: UIViewController {
                 self?.updateUI()
             }
             
-            // Відмічаємо вибрану категорію
             if category == selectedCategory {
                 action.setValue(UIImage(systemName: "checkmark"), forKey: "image")
             }
@@ -552,7 +531,6 @@ class TaskViewController: UIViewController {
         
         alert.addAction(UIAlertAction(title: "Скасувати", style: .cancel))
         
-        // Для iPad
         if let popover = alert.popoverPresentationController {
             popover.barButtonItem = navigationItem.leftBarButtonItems?.first
         }
@@ -577,7 +555,6 @@ class TaskViewController: UIViewController {
     }
     
     @IBAction func addButtonTapped(_ sender: UIButton) {
-        // Animate button
         UIView.animate(withDuration: 0.1, animations: {
             sender.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
         }) { _ in
@@ -586,7 +563,6 @@ class TaskViewController: UIViewController {
             }
         }
         
-        // Show add task controller
         performSegue(withIdentifier: "showAddTask", sender: self)
     }
     
@@ -598,49 +574,117 @@ class TaskViewController: UIViewController {
         }
     }
     
-    // ЗАМІНІТЬ ІСНУЮЧИЙ МЕТОД toggleTaskCompletion
     private func toggleTaskCompletion(taskId: String) {
         if let index = tasks.firstIndex(where: { $0.id == taskId }) {
             let wasCompleted = tasks[index].isCompleted
             
-            // Використовуємо новий спосіб
             if wasCompleted {
                 TaskManager.shared.uncompleteTask(withId: taskId)
             } else {
                 TaskManager.shared.completeTask(withId: taskId)
             }
             
-            // Оновлюємо локальні масиви
             tasks[index].isCompleted = !wasCompleted
             if let allTasksIndex = allTasks.firstIndex(where: { $0.id == taskId }) {
                 allTasks[allTasksIndex].isCompleted = !wasCompleted
             }
             
-            // ОНОВЛЕНО: Плавна анімація переміщення
             applyFilter()
             updateApplicationBadge()
             
             if !wasCompleted {
-                // Завдання стало виконаним - переміщуємо вниз
                 UIView.transition(with: tableView, duration: 0.3, options: .transitionCrossDissolve) {
                     self.tableView.reloadData()
                 } completion: { _ in
-                    // Прокручуємо до нового положення
                     if let newIndex = self.filteredTasks.firstIndex(where: { $0.id == taskId }) {
                         let indexPath = IndexPath(row: newIndex, section: 0)
                         self.tableView.scrollToRow(at: indexPath, at: .middle, animated: true)
                     }
                 }
             } else {
-                // Завдання стало не виконаним - переміщуємо вгору
                 tableView.reloadData()
                 
-                // Прокручуємо до нового положення
                 if let newIndex = filteredTasks.firstIndex(where: { $0.id == taskId }) {
                     let indexPath = IndexPath(row: newIndex, section: 0)
                     tableView.scrollToRow(at: indexPath, at: .middle, animated: true)
                 }
             }
+        }
+    }
+    
+    // MARK: - Calendar Integration
+    
+    private func addTaskToCalendar(task: Task) {
+        let status = CalendarManager.shared.checkCalendarAuthorizationStatus()
+        
+        switch status {
+        case .notDetermined:
+            CalendarManager.shared.requestCalendarAccess { [weak self] granted, error in
+                if granted {
+                    self?.performAddToCalendar(task: task)
+                } else {
+                    self?.showCalendarPermissionAlert()
+                }
+            }
+        case .authorized, .fullAccess:
+            performAddToCalendar(task: task)
+        case .denied, .restricted, .writeOnly:
+            showCalendarPermissionAlert()
+        @unknown default:
+            showCalendarPermissionAlert()
+        }
+    }
+    
+    private func performAddToCalendar(task: Task) {
+        TaskManager.shared.addTaskToCalendar(taskId: task.id) { [weak self] success, error in
+            DispatchQueue.main.async {
+                if success {
+                    self?.showToast(message: "✅ Додано в календар")
+                    self?.loadTasks()
+                } else {
+                    self?.showToast(message: "❌ Помилка: \(error ?? "Невідома помилка")")
+                }
+            }
+        }
+    }
+    
+    private func removeTaskFromCalendar(task: Task) {
+        TaskManager.shared.removeTaskFromCalendar(taskId: task.id) { [weak self] success, error in
+            DispatchQueue.main.async {
+                if success {
+                    self?.showToast(message: "✅ Видалено з календаря")
+                    self?.loadTasks()
+                } else {
+                    self?.showToast(message: "❌ Помилка видалення")
+                }
+            }
+        }
+    }
+    
+    private func showCalendarPermissionAlert() {
+        let alert = UIAlertController(
+            title: "Доступ до календаря",
+            message: "Для синхронізації завдань з календарем потрібен доступ. Увімкніть його в Налаштуваннях.",
+            preferredStyle: .alert
+        )
+        
+        alert.addAction(UIAlertAction(title: "Налаштування", style: .default) { _ in
+            if let settingsUrl = URL(string: UIApplication.openSettingsURLString) {
+                UIApplication.shared.open(settingsUrl)
+            }
+        })
+        
+        alert.addAction(UIAlertAction(title: "Скасувати", style: .cancel))
+        
+        present(alert, animated: true)
+    }
+    
+    private func showToast(message: String) {
+        let alert = UIAlertController(title: nil, message: message, preferredStyle: .alert)
+        present(alert, animated: true)
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+            alert.dismiss(animated: true)
         }
     }
 }
@@ -660,9 +704,7 @@ extension TaskViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        // ВИПРАВЛЕНО: Додаємо безпечну перевірку індексу
         guard indexPath.row < filteredTasks.count else {
-            // Повертаємо порожню комірку якщо індекс поза межами
             return UITableViewCell()
         }
         
@@ -672,23 +714,19 @@ extension TaskViewController: UITableViewDataSource {
         cell.configure(with: task)
         cell.onCompletionToggle = { [weak self] taskId in
             if self?.isSelectionMode == true {
-                // В режимі вибору - додаємо/видаляємо з вибраних
                 if self?.selectedTaskIds.contains(taskId) == true {
                     self?.selectedTaskIds.remove(taskId)
                 } else {
                     self?.selectedTaskIds.insert(taskId)
                 }
-                // ВИПРАВЛЕНО: Безпечне оновлення
                 DispatchQueue.main.async {
                     self?.tableView.reloadData()
                 }
             } else {
-                // Звичайний режим - перемикаємо статус
                 self?.toggleTaskCompletion(taskId: taskId)
             }
         }
         
-        // Використовуємо новий стиль виділення
         if isSelectionMode {
             cell.setSelectionMode(selectedTaskIds.contains(task.id))
             cell.accessoryType = .none
@@ -714,7 +752,6 @@ extension TaskViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         
-        // ВИПРАВЛЕНО: Безпечна перевірка індексу
         guard indexPath.row < filteredTasks.count else {
             return
         }
@@ -722,36 +759,92 @@ extension TaskViewController: UITableViewDelegate {
         let task = filteredTasks[indexPath.row]
         
         if isSelectionMode {
-            // В режимі множинного вибору
             if selectedTaskIds.contains(task.id) {
                 selectedTaskIds.remove(task.id)
             } else {
                 selectedTaskIds.insert(task.id)
             }
-            // ВИПРАВЛЕНО: Безпечне оновлення
             DispatchQueue.main.async {
                 self.tableView.reloadData()
             }
         } else {
-            // Звичайний режим - редагування
             showEditTaskViewController(task: task)
         }
     }
     
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
-            // ВИПРАВЛЕНО: Безпечна перевірка індексу
             guard indexPath.row < filteredTasks.count else {
                 return
             }
             
             let task = filteredTasks[indexPath.row]
             
-            // Cancel notification
             NotificationManager.shared.cancelNotification(for: task.id)
-            
             TaskManager.shared.deleteTask(withId: task.id)
             loadTasks()
+        }
+    }
+    
+    func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
+        guard indexPath.row < filteredTasks.count else { return nil }
+        let task = filteredTasks[indexPath.row]
+        
+        return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { [weak self] _ in
+            var actions: [UIMenuElement] = []
+            
+            let editAction = UIAction(
+                title: "Редагувати",
+                image: UIImage(systemName: "pencil")
+            ) { _ in
+                self?.showEditTaskViewController(task: task)
+            }
+            actions.append(editAction)
+            
+            // Календар
+            if task.dueDate != nil {
+                if task.isInCalendar {
+                    let removeFromCalendarAction = UIAction(
+                        title: "Видалити з календаря",
+                        image: UIImage(systemName: "calendar.badge.minus"),
+                        attributes: []
+                    ) { [weak self] _ in
+                        self?.removeTaskFromCalendar(task: task)
+                    }
+                    actions.append(removeFromCalendarAction)
+                } else {
+                    let addToCalendarAction = UIAction(
+                        title: "Додати в календар",
+                        image: UIImage(systemName: "calendar.badge.plus")
+                    ) { [weak self] _ in
+                        self?.addTaskToCalendar(task: task)
+                    }
+                    actions.append(addToCalendarAction)
+                }
+            }
+            
+            let completionTitle = task.isCompleted ? "Позначити невиконаним" : "Позначити виконаним"
+            let completionIcon = task.isCompleted ? "circle" : "checkmark.circle.fill"
+            let completionAction = UIAction(
+                title: completionTitle,
+                image: UIImage(systemName: completionIcon)
+            ) { [weak self] _ in
+                self?.toggleTaskCompletion(taskId: task.id)
+            }
+            actions.append(completionAction)
+            
+            let deleteAction = UIAction(
+                title: "Видалити",
+                image: UIImage(systemName: "trash"),
+                attributes: .destructive
+            ) { [weak self] _ in
+                NotificationManager.shared.cancelNotification(for: task.id)
+                TaskManager.shared.deleteTask(withId: task.id)
+                self?.loadTasks()
+            }
+            actions.append(deleteAction)
+            
+            return UIMenu(title: "", children: actions)
         }
     }
 }

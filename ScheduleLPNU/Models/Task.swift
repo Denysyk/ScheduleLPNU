@@ -12,6 +12,7 @@ struct Task: Codable {
     var associatedSchedule: String?
     var category: TaskCategory
     var tags: [String]
+    var isInCalendar: Bool
     
     enum TaskPriority: String, Codable, CaseIterable {
         case low = "Низький"
@@ -72,6 +73,7 @@ struct Task: Codable {
         
         category = try container.decodeIfPresent(TaskCategory.self, forKey: .category) ?? .other
         tags = try container.decodeIfPresent([String].self, forKey: .tags) ?? []
+        isInCalendar = try container.decodeIfPresent(Bool.self, forKey: .isInCalendar) ?? false
     }
     
     func encode(to encoder: Encoder) throws {
@@ -87,10 +89,11 @@ struct Task: Codable {
         try container.encodeIfPresent(associatedSchedule, forKey: .associatedSchedule)
         try container.encode(category, forKey: .category)
         try container.encode(tags, forKey: .tags)
+        try container.encode(isInCalendar, forKey: .isInCalendar) 
     }
     
     enum CodingKeys: String, CodingKey {
-        case id, title, description, isCompleted, priority, dueDate, createdDate, associatedSchedule, category, tags
+        case id, title, description, isCompleted, priority, dueDate, createdDate, associatedSchedule, category, tags, isInCalendar
     }
     
     init(title: String, description: String? = nil, priority: TaskPriority = .medium, dueDate: Date? = nil, category: TaskCategory = .other, tags: [String] = []) {
@@ -104,5 +107,6 @@ struct Task: Codable {
         self.associatedSchedule = nil
         self.category = category
         self.tags = tags
+        self.isInCalendar = false
     }
 }

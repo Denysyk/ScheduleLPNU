@@ -9,7 +9,7 @@ import UIKit
 
 class AddTaskViewController: UIViewController {
     
-    // UI елементи - програмні
+    // UI елементи
     private var scrollView: UIScrollView!
     private var contentView: UIView!
     private var mainStack: UIStackView!
@@ -30,118 +30,24 @@ class AddTaskViewController: UIViewController {
     private var selectedSchedule: String?
     private var savedSchedules: [SavedSchedule] = []
     
-    // Додана змінна для редагування
     var taskToEdit: Task?
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
-        setupConstraints()
-        setupThemeObserver()
         loadSchedules()
-        applyTheme()
         
-        // Request notification permission
-        NotificationManager.shared.requestPermission { granted in
-            // Notification permission handled
-        }
-        
-        // Якщо редагуємо існуюче завдання
         if let task = taskToEdit {
             loadTaskForEditing(task)
-        }
-        
-        // Налаштування закриття клавіатури
-        setupKeyboardDismissal()
-        setupNotifications()
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        applyTheme()
-    }
-    
-    deinit {
-        NotificationCenter.default.removeObserver(self)
-    }
-    
-    private func setupThemeObserver() {
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(themeDidChange),
-            name: ThemeManager.themeChangedNotification,
-            object: nil
-        )
-    }
-    
-    @objc private func themeDidChange() {
-        applyTheme()
-    }
-    
-    private func applyTheme() {
-        let theme = ThemeManager.shared
-        
-        // Background
-        view.backgroundColor = theme.backgroundColor
-        
-        // Navigation
-        navigationController?.navigationBar.titleTextAttributes = [
-            NSAttributedString.Key.foregroundColor: theme.accentColor,
-            NSAttributedString.Key.font: UIFont.systemFont(ofSize: 17, weight: .semibold)
-        ]
-        navigationController?.navigationBar.tintColor = theme.accentColor
-        
-        // Text fields and text views
-        titleTextField?.backgroundColor = theme.cardBackgroundColor
-        titleTextField?.textColor = theme.textColor
-        titleTextField?.layer.borderColor = theme.separatorColor.cgColor
-        
-        descriptionTextView?.backgroundColor = theme.cardBackgroundColor
-        descriptionTextView?.textColor = theme.textColor
-        descriptionTextView?.layer.borderColor = theme.separatorColor.cgColor
-        
-        // Update placeholder color for text view
-        if descriptionTextView?.text == "Введіть опис завдання..." {
-            descriptionTextView?.textColor = theme.secondaryTextColor
-        }
-        
-        // Buttons
-        let buttons = [dueDateButton, priorityButton, scheduleButton, categoryButton, tagsButton]
-        buttons.forEach { button in
-            button?.backgroundColor = theme.cardBackgroundColor
-            button?.setTitleColor(theme.accentColor, for: .normal)
-            button?.tintColor = theme.accentColor
-            button?.layer.borderColor = theme.separatorColor.cgColor
-        }
-        
-        // Labels
-        for view in mainStack.arrangedSubviews {
-            if let label = view as? UILabel {
-                label.textColor = theme.textColor
-            }
-        }
-        
-        // Update toolbar
-        if let toolbar = descriptionTextView?.inputAccessoryView as? UIToolbar {
-            toolbar.items?.forEach { $0.tintColor = theme.accentColor }
+            title = "Редагувати завдання"
+        } else {
+            title = "Нове завдання"
         }
     }
     
     private func setupUI() {
-        if taskToEdit == nil {
-            title = "НОВЕ ЗАВДАННЯ"
-        } else {
-            // Створюємо кастомний title label для багаторядкового заголовка
-            let titleLabel = UILabel()
-            titleLabel.text = "РЕДАГУВАТИ\nЗАВДАННЯ"
-            titleLabel.font = UIFont.systemFont(ofSize: 17, weight: .semibold)
-            titleLabel.textAlignment = .center
-            titleLabel.numberOfLines = 0
-            titleLabel.textColor = ThemeManager.shared.accentColor
-            titleLabel.sizeToFit()
-            
-            navigationItem.titleView = titleLabel
-        }
+        let theme = ThemeManager.shared
+        view.backgroundColor = theme.backgroundColor
         
         // Navigation buttons
         navigationItem.leftBarButtonItem = UIBarButtonItem(
@@ -158,192 +64,268 @@ class AddTaskViewController: UIViewController {
             action: #selector(saveTapped)
         )
         
-        createScrollView()
-        createFormElements()
+        navigationItem.leftBarButtonItem?.tintColor = theme.accentColor
+        navigationItem.rightBarButtonItem?.tintColor = theme.accentColor
+        
+        setupScrollView()
+        setupMainStack()
+        setupConstraints()
+        setupKeyboardDismissal()
+        setupNotifications()
     }
     
-    private func createScrollView() {
+    private func setupScrollView() {
         scrollView = UIScrollView()
-        contentView = UIView()
-        mainStack = UIStackView()
-        
         scrollView.translatesAutoresizingMaskIntoConstraints = false
-        contentView.translatesAutoresizingMaskIntoConstraints = false
-        mainStack.translatesAutoresizingMaskIntoConstraints = false
-        
+        scrollView.alwaysBounceVertical = true
+        scrollView.showsVerticalScrollIndicator = false
         view.addSubview(scrollView)
-        scrollView.addSubview(contentView)
-        contentView.addSubview(mainStack)
         
-        // Налаштування Stack View
-        mainStack.axis = .vertical
-        mainStack.spacing = 16
-        mainStack.distribution = .fill
+        contentView = UIView()
+        contentView.translatesAutoresizingMaskIntoConstraints = false
+        scrollView.addSubview(contentView)
     }
     
-    private func createFormElements() {
+    private func setupMainStack() {
         let theme = ThemeManager.shared
         
-        // Назва завдання
-        let titleLabel = createLabel(text: "Назва завдання")
-        titleTextField = createTextField(placeholder: "Введіть назву завдання")
+        mainStack = UIStackView()
+        mainStack.axis = .vertical
+        mainStack.spacing = 16
+        mainStack.translatesAutoresizingMaskIntoConstraints = false
+        contentView.addSubview(mainStack)
         
-        // Опис завдання
-        let descriptionLabel = createLabel(text: "Опис завдання")
-        descriptionTextView = createTextView()
+        // Title Card
+        let titleCard = createCard()
+        let titleLabel = createSectionLabel(text: "Назва завдання")
+        titleTextField = createStyledTextField(placeholder: "Наприклад: Здати курсову роботу")
         
-        // Дата і час
-        let dateLabel = createLabel(text: "Дата і час")
-        dueDateButton = createButton(title: "Вибрати дату", icon: "calendar", action: #selector(dueDateButtonTapped))
+        titleCard.addArrangedSubview(titleLabel)
+        titleCard.addArrangedSubview(titleTextField)
+        mainStack.addArrangedSubview(titleCard)
         
-        // Пріоритет
-        let priorityLabel = createLabel(text: "Пріоритет")
-        priorityButton = createButton(title: selectedPriority.rawValue, icon: "flag.fill", action: #selector(priorityButtonTapped))
+        // Description Card
+        let descCard = createCard()
+        let descLabel = createSectionLabel(text: "Опис (необов'язково)")
+        descriptionTextView = createStyledTextView()
         
-        // Зв'язати з розкладом
-        let scheduleLabel = createLabel(text: "Зв'язати з розкладом")
-        scheduleButton = createButton(title: "Вибрати розклад", icon: "book.fill", action: #selector(scheduleButtonTapped))
+        descCard.addArrangedSubview(descLabel)
+        descCard.addArrangedSubview(descriptionTextView)
+        mainStack.addArrangedSubview(descCard)
         
-        // Категорія
-        let categoryLabel = createLabel(text: "Категорія")
-        categoryButton = createButton(title: selectedCategory.rawValue, icon: selectedCategory.icon, action: #selector(categoryButtonTapped))
+        // Buttons Card
+        let buttonsCard = createCard()
         
-        // Теги
-        let tagsLabel = createLabel(text: "Теги")
-        tagsButton = createButton(title: "Додати теги", icon: "tag.fill", action: #selector(tagsButtonTapped))
+        dueDateButton = createStyledButton(
+            title: "Додати дату виконання",
+            icon: "calendar",
+            subtitle: "Не встановлено"
+        )
+        dueDateButton.addTarget(self, action: #selector(dueDateButtonTapped), for: .touchUpInside)
         
-        // Додаємо все до Stack View
-        mainStack.addArrangedSubview(titleLabel)
-        mainStack.addArrangedSubview(titleTextField)
-        mainStack.addArrangedSubview(descriptionLabel)
-        mainStack.addArrangedSubview(descriptionTextView)
-        mainStack.addArrangedSubview(dateLabel)
-        mainStack.addArrangedSubview(dueDateButton)
-        mainStack.addArrangedSubview(priorityLabel)
-        mainStack.addArrangedSubview(priorityButton)
-        mainStack.addArrangedSubview(scheduleLabel)
-        mainStack.addArrangedSubview(scheduleButton)
-        mainStack.addArrangedSubview(categoryLabel)
-        mainStack.addArrangedSubview(categoryButton)
-        mainStack.addArrangedSubview(tagsLabel)
-        mainStack.addArrangedSubview(tagsButton)
+        priorityButton = createStyledButton(
+            title: "Пріоритет",
+            icon: "exclamationmark.triangle.fill",
+            subtitle: "Середній"
+        )
+        priorityButton.addTarget(self, action: #selector(priorityButtonTapped), for: .touchUpInside)
+        
+        categoryButton = createStyledButton(
+            title: "Категорія",
+            icon: "folder.fill",
+            subtitle: "📁 Інше"
+        )
+        categoryButton.addTarget(self, action: #selector(categoryButtonTapped), for: .touchUpInside)
+        
+        scheduleButton = createStyledButton(
+            title: "Прив'язати до розкладу",
+            icon: "calendar.badge.clock",
+            subtitle: "Не обрано"
+        )
+        scheduleButton.addTarget(self, action: #selector(scheduleButtonTapped), for: .touchUpInside)
+        
+        tagsButton = createStyledButton(
+            title: "Теги",
+            icon: "tag.fill",
+            subtitle: "Додати теги"
+        )
+        tagsButton.addTarget(self, action: #selector(tagsButtonTapped), for: .touchUpInside)
+        
+        buttonsCard.addArrangedSubview(dueDateButton)
+        buttonsCard.addArrangedSubview(createSeparator())
+        buttonsCard.addArrangedSubview(priorityButton)
+        buttonsCard.addArrangedSubview(createSeparator())
+        buttonsCard.addArrangedSubview(categoryButton)
+        buttonsCard.addArrangedSubview(createSeparator())
+        buttonsCard.addArrangedSubview(scheduleButton)
+        buttonsCard.addArrangedSubview(createSeparator())
+        buttonsCard.addArrangedSubview(tagsButton)
+        
+        mainStack.addArrangedSubview(buttonsCard)
     }
     
-    private func createLabel(text: String) -> UILabel {
+    private func createCard() -> UIStackView {
+        let theme = ThemeManager.shared
+        let card = UIStackView()
+        card.axis = .vertical
+        card.spacing = 12
+        card.layoutMargins = UIEdgeInsets(top: 16, left: 16, bottom: 16, right: 16)
+        card.isLayoutMarginsRelativeArrangement = true
+        card.backgroundColor = theme.cardBackgroundColor
+        card.layer.cornerRadius = 12
+        card.layer.shadowColor = UIColor.black.cgColor
+        card.layer.shadowOffset = CGSize(width: 0, height: 2)
+        card.layer.shadowRadius = 4
+        card.layer.shadowOpacity = theme.isDarkMode ? 0 : 0.05
+        return card
+    }
+    
+    private func createSectionLabel(text: String) -> UILabel {
         let theme = ThemeManager.shared
         let label = UILabel()
         label.text = text
-        label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
-        label.textColor = theme.textColor
+        label.font = UIFont.systemFont(ofSize: 13, weight: .semibold)
+        label.textColor = theme.secondaryTextColor
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }
     
-    private func createTextField(placeholder: String) -> UITextField {
+    private func createStyledTextField(placeholder: String) -> UITextField {
         let theme = ThemeManager.shared
         let textField = UITextField()
         textField.translatesAutoresizingMaskIntoConstraints = false
         textField.placeholder = placeholder
-        textField.font = UIFont.systemFont(ofSize: 16)
-        textField.layer.cornerRadius = 8
-        textField.layer.borderWidth = 1
-        textField.layer.borderColor = theme.separatorColor.cgColor
-        textField.backgroundColor = theme.cardBackgroundColor
+        textField.font = UIFont.systemFont(ofSize: 17, weight: .medium)
         textField.textColor = theme.textColor
         textField.delegate = self
         
-        // Placeholder color
         textField.attributedPlaceholder = NSAttributedString(
             string: placeholder,
-            attributes: [NSAttributedString.Key.foregroundColor: theme.secondaryTextColor]
+            attributes: [NSAttributedString.Key.foregroundColor: theme.secondaryTextColor.withAlphaComponent(0.5)]
         )
-        
-        // Padding
-        let paddingView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: textField.frame.height))
-        textField.leftView = paddingView
-        textField.leftViewMode = .always
         
         textField.heightAnchor.constraint(equalToConstant: 44).isActive = true
         
         return textField
     }
     
-    private func createTextView() -> UITextView {
+    private func createStyledTextView() -> UITextView {
         let theme = ThemeManager.shared
         let textView = UITextView()
         textView.translatesAutoresizingMaskIntoConstraints = false
         textView.font = UIFont.systemFont(ofSize: 16)
+        textView.backgroundColor = theme.backgroundColor
         textView.layer.cornerRadius = 8
         textView.layer.borderWidth = 1
         textView.layer.borderColor = theme.separatorColor.cgColor
-        textView.backgroundColor = theme.cardBackgroundColor
-        textView.textColor = theme.textColor
         textView.textContainerInset = UIEdgeInsets(top: 12, left: 12, bottom: 12, right: 12)
         textView.delegate = self
         
         if taskToEdit == nil {
-            textView.text = "Введіть опис завдання..."
+            textView.text = "Додайте деталі завдання..."
             textView.textColor = theme.secondaryTextColor
+        } else {
+            textView.textColor = theme.textColor
         }
         
         textView.heightAnchor.constraint(equalToConstant: 100).isActive = true
         
-        // Додаємо toolbar з кнопкою "Готово"
-        let toolbar = UIToolbar()
-        toolbar.sizeToFit()
-        let flexSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
-        let doneButton = UIBarButtonItem(title: "Готово", style: .done, target: self, action: #selector(dismissKeyboard))
-        doneButton.tintColor = theme.accentColor
-        toolbar.items = [flexSpace, doneButton]
-        textView.inputAccessoryView = toolbar
-        
         return textView
     }
     
-    private func createButton(title: String, icon: String, action: Selector) -> UIButton {
+    private func createStyledButton(title: String, icon: String, subtitle: String) -> UIButton {
         let theme = ThemeManager.shared
         let button = UIButton(type: .system)
         button.translatesAutoresizingMaskIntoConstraints = false
-        
-        button.setTitle(title, for: .normal)
-        button.setTitleColor(theme.accentColor, for: .normal)
-        button.backgroundColor = theme.cardBackgroundColor
-        button.layer.cornerRadius = 8
-        button.layer.borderWidth = 1
-        button.layer.borderColor = theme.separatorColor.cgColor
         button.contentHorizontalAlignment = .left
-        button.titleLabel?.font = UIFont.systemFont(ofSize: 16)
+        button.heightAnchor.constraint(equalToConstant: 56).isActive = true
         
-        // Іконка зліва з правильним відступом
-        if let image = UIImage(systemName: icon) {
-            button.setImage(image, for: .normal)
-            button.tintColor = theme.accentColor
-            button.imageEdgeInsets = UIEdgeInsets(top: 0, left: 12, bottom: 0, right: 0)
-            button.titleEdgeInsets = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 0)
-        }
+        // Container for layout
+        let container = UIView()
+        container.isUserInteractionEnabled = false
+        button.addSubview(container)
+        container.translatesAutoresizingMaskIntoConstraints = false
         
-        button.addTarget(self, action: action, for: .touchUpInside)
-        button.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        // Icon
+        let iconView = UIImageView(image: UIImage(systemName: icon))
+        iconView.tintColor = theme.accentColor
+        iconView.contentMode = .scaleAspectFit
+        iconView.translatesAutoresizingMaskIntoConstraints = false
+        container.addSubview(iconView)
+        
+        // Title stack
+        let textStack = UIStackView()
+        textStack.axis = .vertical
+        textStack.spacing = 2
+        textStack.translatesAutoresizingMaskIntoConstraints = false
+        container.addSubview(textStack)
+        
+        let titleLabel = UILabel()
+        titleLabel.text = title
+        titleLabel.font = UIFont.systemFont(ofSize: 16, weight: .medium)
+        titleLabel.textColor = theme.textColor
+        
+        let subtitleLabel = UILabel()
+        subtitleLabel.text = subtitle
+        subtitleLabel.font = UIFont.systemFont(ofSize: 14)
+        subtitleLabel.textColor = theme.secondaryTextColor
+        subtitleLabel.tag = 999 // Для оновлення
+        
+        textStack.addArrangedSubview(titleLabel)
+        textStack.addArrangedSubview(subtitleLabel)
+        
+        // Chevron
+        let chevron = UIImageView(image: UIImage(systemName: "chevron.right"))
+        chevron.tintColor = theme.secondaryTextColor
+        chevron.contentMode = .scaleAspectFit
+        chevron.translatesAutoresizingMaskIntoConstraints = false
+        container.addSubview(chevron)
+        
+        NSLayoutConstraint.activate([
+            container.leadingAnchor.constraint(equalTo: button.leadingAnchor),
+            container.trailingAnchor.constraint(equalTo: button.trailingAnchor),
+            container.centerYAnchor.constraint(equalTo: button.centerYAnchor),
+            
+            iconView.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+            iconView.centerYAnchor.constraint(equalTo: container.centerYAnchor),
+            iconView.widthAnchor.constraint(equalToConstant: 24),
+            iconView.heightAnchor.constraint(equalToConstant: 24),
+            
+            textStack.leadingAnchor.constraint(equalTo: iconView.trailingAnchor, constant: 12),
+            textStack.centerYAnchor.constraint(equalTo: container.centerYAnchor),
+            
+            chevron.trailingAnchor.constraint(equalTo: container.trailingAnchor),
+            chevron.centerYAnchor.constraint(equalTo: container.centerYAnchor),
+            chevron.widthAnchor.constraint(equalToConstant: 12),
+            chevron.heightAnchor.constraint(equalToConstant: 16),
+            chevron.leadingAnchor.constraint(greaterThanOrEqualTo: textStack.trailingAnchor, constant: 8)
+        ])
         
         return button
     }
     
+    private func createSeparator() -> UIView {
+        let theme = ThemeManager.shared
+        let separator = UIView()
+        separator.backgroundColor = theme.separatorColor
+        separator.translatesAutoresizingMaskIntoConstraints = false
+        separator.heightAnchor.constraint(equalToConstant: 0.5).isActive = true
+        return separator
+    }
+    
     private func setupConstraints() {
         NSLayoutConstraint.activate([
-            // ScrollView з Safe Area
             scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             scrollView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
             scrollView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
             scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             
-            // ContentView
             contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
             contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
             contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
             contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
             contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
             
-            // Main Stack
             mainStack.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 16),
             mainStack.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             mainStack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
@@ -413,6 +395,7 @@ class AddTaskViewController: UIViewController {
     }
     
     // MARK: - Button Actions
+    
     @objc private func cancelTapped() {
         navigationController?.popViewController(animated: true)
     }
@@ -423,11 +406,16 @@ class AddTaskViewController: UIViewController {
             return
         }
         
-        let description = descriptionTextView.text.trimmingCharacters(in: .whitespacesAndNewlines)
-        let finalDescription = (description.isEmpty || description == "Введіть опис завдання...") ? nil : description
+        // ВИПРАВЛЕНО: правильна перевірка опису
+        var finalDescription: String? = nil
+        if let text = descriptionTextView.text,
+           text != "Додайте деталі завдання...",
+           !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            finalDescription = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        }
         
         if let existingTask = taskToEdit {
-            // Редагуємо існуюче завдання
+            // Редагування
             var updatedTask = existingTask
             updatedTask.title = title.trimmingCharacters(in: .whitespacesAndNewlines)
             updatedTask.description = finalDescription
@@ -439,13 +427,14 @@ class AddTaskViewController: UIViewController {
             
             TaskManager.shared.updateTask(updatedTask)
             
-            // Update notification
             if selectedDate != nil {
                 NotificationManager.shared.cancelNotification(for: updatedTask.id)
                 NotificationManager.shared.scheduleNotification(for: updatedTask)
             }
+            
+            navigationController?.popViewController(animated: true)
         } else {
-            // Створюємо нове завдання
+            // Створення нового
             var task = Task(
                 title: title.trimmingCharacters(in: .whitespacesAndNewlines),
                 description: finalDescription,
@@ -458,14 +447,105 @@ class AddTaskViewController: UIViewController {
             task.associatedSchedule = selectedSchedule
             TaskManager.shared.addTask(task)
             
-            // Schedule notification
             if selectedDate != nil {
                 NotificationManager.shared.scheduleNotification(for: task)
+                showAddToCalendarPrompt(for: task)
+            } else {
+                navigationController?.popViewController(animated: true)
             }
         }
-        
-        navigationController?.popViewController(animated: true)
     }
+    
+    // MARK: - Calendar Integration
+    
+    private func showAddToCalendarPrompt(for task: Task) {
+        let alert = UIAlertController(
+            title: "📅 Додати в календар?",
+            message: "Хочете додати це завдання до вашого iOS календаря?",
+            preferredStyle: .alert
+        )
+        
+        alert.addAction(UIAlertAction(title: "Так, додати", style: .default) { [weak self] _ in
+            self?.addTaskToCalendar(task: task)
+        })
+        
+        alert.addAction(UIAlertAction(title: "Ні, дякую", style: .cancel) { [weak self] _ in
+            self?.navigationController?.popViewController(animated: true)
+        })
+        
+        present(alert, animated: true)
+    }
+    
+    private func addTaskToCalendar(task: Task) {
+        let status = CalendarManager.shared.checkCalendarAuthorizationStatus()
+        
+        switch status {
+        case .notDetermined:
+            CalendarManager.shared.requestCalendarAccess { [weak self] granted, error in
+                if granted {
+                    self?.performAddToCalendar(task: task)
+                } else {
+                    self?.showCalendarPermissionDenied()
+                }
+            }
+        case .authorized, .fullAccess:
+            performAddToCalendar(task: task)
+        case .denied, .restricted, .writeOnly:
+            showCalendarPermissionDenied()
+        @unknown default:
+            showCalendarPermissionDenied()
+        }
+    }
+    
+    private func performAddToCalendar(task: Task) {
+        TaskManager.shared.addTaskToCalendar(taskId: task.id) { [weak self] success, error in
+            DispatchQueue.main.async {
+                if success {
+                    let successAlert = UIAlertController(
+                        title: "✅ Готово!",
+                        message: "Завдання додано до календаря",
+                        preferredStyle: .alert
+                    )
+                    successAlert.addAction(UIAlertAction(title: "OK", style: .default) { _ in
+                        self?.navigationController?.popViewController(animated: true)
+                    })
+                    self?.present(successAlert, animated: true)
+                } else {
+                    let errorAlert = UIAlertController(
+                        title: "⚠️ Помилка",
+                        message: error ?? "Не вдалося додати до календаря",
+                        preferredStyle: .alert
+                    )
+                    errorAlert.addAction(UIAlertAction(title: "OK", style: .default) { _ in
+                        self?.navigationController?.popViewController(animated: true)
+                    })
+                    self?.present(errorAlert, animated: true)
+                }
+            }
+        }
+    }
+    
+    private func showCalendarPermissionDenied() {
+        let alert = UIAlertController(
+            title: "🔒 Доступ заборонено",
+            message: "Щоб додавати завдання в календар, увімкніть доступ у Налаштуваннях iOS.",
+            preferredStyle: .alert
+        )
+        
+        alert.addAction(UIAlertAction(title: "Відкрити налаштування", style: .default) { _ in
+            if let settingsUrl = URL(string: UIApplication.openSettingsURLString) {
+                UIApplication.shared.open(settingsUrl)
+            }
+        })
+        
+        alert.addAction(UIAlertAction(title: "Скасувати", style: .cancel) { [weak self] _ in
+            self?.navigationController?.popViewController(animated: true)
+        })
+        
+        present(alert, animated: true)
+    }
+    
+    // MARK: - Pickers
     
     @objc private func dueDateButtonTapped() {
         showDatePicker()
@@ -487,59 +567,58 @@ class AddTaskViewController: UIViewController {
         showTagsPicker()
     }
     
-    // MARK: - Picker Methods
     private func showDatePicker() {
-        let alert = UIAlertController(title: "Вибрати дату", message: nil, preferredStyle: .actionSheet)
+        let alert = UIAlertController(title: "Виберіть дату виконання", message: "\n\n\n\n\n\n\n\n\n", preferredStyle: .alert)
         
         let datePicker = UIDatePicker()
         datePicker.datePickerMode = .dateAndTime
         datePicker.preferredDatePickerStyle = .wheels
-        datePicker.minimumDate = Date()
         datePicker.locale = Locale(identifier: "uk_UA")
+        datePicker.minimumDate = Date()
         
-        let pickerContainer = UIViewController()
-        pickerContainer.view = datePicker
-        pickerContainer.preferredContentSize = CGSize(width: 320, height: 200)
+        if let currentDate = selectedDate {
+            datePicker.date = currentDate
+        }
         
-        alert.setValue(pickerContainer, forKey: "contentViewController")
+        alert.view.addSubview(datePicker)
+        datePicker.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            datePicker.centerXAnchor.constraint(equalTo: alert.view.centerXAnchor),
+            datePicker.topAnchor.constraint(equalTo: alert.view.topAnchor, constant: 50)
+        ])
         
-        let selectAction = UIAlertAction(title: "Вибрати", style: .default) { [weak self] _ in
+        alert.addAction(UIAlertAction(title: "Встановити", style: .default) { [weak self] _ in
             self?.selectedDate = datePicker.date
             self?.updateButtonTitles()
-        }
+        })
         
-        let clearAction = UIAlertAction(title: "Очистити", style: .destructive) { [weak self] _ in
+        alert.addAction(UIAlertAction(title: "Очистити", style: .destructive) { [weak self] _ in
             self?.selectedDate = nil
             self?.updateButtonTitles()
-        }
+        })
         
-        let cancelAction = UIAlertAction(title: "Скасувати", style: .cancel)
-        
-        alert.addAction(selectAction)
-        alert.addAction(clearAction)
-        alert.addAction(cancelAction)
-        
-        if let popover = alert.popoverPresentationController {
-            popover.sourceView = dueDateButton
-            popover.sourceRect = dueDateButton.bounds
-        }
+        alert.addAction(UIAlertAction(title: "Скасувати", style: .cancel))
         
         present(alert, animated: true)
     }
     
     private func showPriorityPicker() {
-        let alert = UIAlertController(title: "Пріоритет", message: nil, preferredStyle: .actionSheet)
+        let alert = UIAlertController(title: "Виберіть пріоритет", message: nil, preferredStyle: .actionSheet)
         
         for priority in Task.TaskPriority.allCases {
             let action = UIAlertAction(title: priority.rawValue, style: .default) { [weak self] _ in
                 self?.selectedPriority = priority
                 self?.updateButtonTitles()
             }
+            
+            if priority == selectedPriority {
+                action.setValue(UIImage(systemName: "checkmark"), forKey: "image")
+            }
+            
             alert.addAction(action)
         }
         
-        let cancelAction = UIAlertAction(title: "Скасувати", style: .cancel)
-        alert.addAction(cancelAction)
+        alert.addAction(UIAlertAction(title: "Скасувати", style: .cancel))
         
         if let popover = alert.popoverPresentationController {
             popover.sourceView = priorityButton
@@ -550,18 +629,22 @@ class AddTaskViewController: UIViewController {
     }
     
     private func showCategoryPicker() {
-        let alert = UIAlertController(title: "Категорія", message: nil, preferredStyle: .actionSheet)
+        let alert = UIAlertController(title: "Виберіть категорію", message: nil, preferredStyle: .actionSheet)
         
         for category in Task.TaskCategory.allCases {
-            let action = UIAlertAction(title: category.rawValue, style: .default) { [weak self] _ in
+            let action = UIAlertAction(title: "\(getCategoryEmoji(category)) \(category.rawValue)", style: .default) { [weak self] _ in
                 self?.selectedCategory = category
                 self?.updateButtonTitles()
             }
+            
+            if category == selectedCategory {
+                action.setValue(UIImage(systemName: "checkmark"), forKey: "image")
+            }
+            
             alert.addAction(action)
         }
         
-        let cancelAction = UIAlertAction(title: "Скасувати", style: .cancel)
-        alert.addAction(cancelAction)
+        alert.addAction(UIAlertAction(title: "Скасувати", style: .cancel))
         
         if let popover = alert.popoverPresentationController {
             popover.sourceView = categoryButton
@@ -571,64 +654,71 @@ class AddTaskViewController: UIViewController {
         present(alert, animated: true)
     }
     
-    private func showTagsPicker() {
-        let alert = UIAlertController(title: "Додати тег", message: nil, preferredStyle: .alert)
-        
-        alert.addTextField { textField in
-            textField.placeholder = "Введіть тег"
+    private func getCategoryEmoji(_ category: Task.TaskCategory) -> String {
+        switch category {
+        case .personal: return "👤"
+        case .work: return "💼"
+        case .study: return "📚"
+        case .health: return "❤️"
+        case .shopping: return "🛒"
+        case .other: return "📁"
         }
-        
-        let addAction = UIAlertAction(title: "Додати", style: .default) { [weak self] _ in
-            if let text = alert.textFields?.first?.text, !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                let tag = text.trimmingCharacters(in: .whitespacesAndNewlines)
-                if !(self?.selectedTags.contains(tag) ?? false) {
-                    self?.selectedTags.append(tag)
-                    self?.updateButtonTitles()
-                }
-            }
-        }
-        
-        let clearAction = UIAlertAction(title: "Очистити всі", style: .destructive) { [weak self] _ in
-            self?.selectedTags.removeAll()
-            self?.updateButtonTitles()
-        }
-        
-        let cancelAction = UIAlertAction(title: "Скасувати", style: .cancel)
-        
-        alert.addAction(addAction)
-        if !selectedTags.isEmpty {
-            alert.addAction(clearAction)
-        }
-        alert.addAction(cancelAction)
-        
-        present(alert, animated: true)
     }
     
     private func showSchedulePicker() {
-        let alert = UIAlertController(title: "Зв'язати з розкладом", message: nil, preferredStyle: .actionSheet)
+        let alert = UIAlertController(title: "Прив'язати до розкладу", message: nil, preferredStyle: .actionSheet)
         
-        for schedule in savedSchedules {
-            let action = UIAlertAction(title: schedule.title, style: .default) { [weak self] _ in
-                self?.selectedSchedule = schedule.title
+        if savedSchedules.isEmpty {
+            alert.message = "У вас ще немає збережених розкладів"
+        } else {
+            for schedule in savedSchedules {
+                let action = UIAlertAction(title: schedule.title, style: .default) { [weak self] _ in
+                    self?.selectedSchedule = schedule.title
+                    self?.updateButtonTitles()
+                }
+                
+                if schedule.title == selectedSchedule {
+                    action.setValue(UIImage(systemName: "checkmark"), forKey: "image")
+                }
+                
+                alert.addAction(action)
+            }
+            
+            let clearAction = UIAlertAction(title: "Очистити", style: .destructive) { [weak self] _ in
+                self?.selectedSchedule = nil
                 self?.updateButtonTitles()
             }
-            alert.addAction(action)
+            alert.addAction(clearAction)
         }
         
-        let clearAction = UIAlertAction(title: "Не зв'язувати", style: .destructive) { [weak self] _ in
-            self?.selectedSchedule = nil
-            self?.updateButtonTitles()
-        }
-        
-        let cancelAction = UIAlertAction(title: "Скасувати", style: .cancel)
-        
-        alert.addAction(clearAction)
-        alert.addAction(cancelAction)
+        alert.addAction(UIAlertAction(title: "Скасувати", style: .cancel))
         
         if let popover = alert.popoverPresentationController {
             popover.sourceView = scheduleButton
             popover.sourceRect = scheduleButton.bounds
         }
+        
+        present(alert, animated: true)
+    }
+    
+    private func showTagsPicker() {
+        let alert = UIAlertController(title: "Додайте теги", message: "Розділіть теги комами", preferredStyle: .alert)
+        
+        alert.addTextField { textField in
+            textField.placeholder = "тег1, тег2, тег3"
+            textField.text = self.selectedTags.joined(separator: ", ")
+        }
+        
+        alert.addAction(UIAlertAction(title: "Зберегти", style: .default) { [weak self] _ in
+            if let text = alert.textFields?.first?.text, !text.isEmpty {
+                self?.selectedTags = text.components(separatedBy: ",").map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }
+            } else {
+                self?.selectedTags = []
+            }
+            self?.updateButtonTitles()
+        })
+        
+        alert.addAction(UIAlertAction(title: "Скасувати", style: .cancel))
         
         present(alert, animated: true)
     }
@@ -639,33 +729,38 @@ class AddTaskViewController: UIViewController {
             let formatter = DateFormatter()
             formatter.locale = Locale(identifier: "uk_UA")
             formatter.dateFormat = "dd MMMM yyyy 'о' HH:mm"
-            dueDateButton.setTitle(formatter.string(from: date), for: .normal)
+            updateButtonSubtitle(dueDateButton, subtitle: formatter.string(from: date))
         } else {
-            dueDateButton.setTitle("Вибрати дату", for: .normal)
+            updateButtonSubtitle(dueDateButton, subtitle: "Не встановлено")
         }
         
         // Update priority button
-        priorityButton.setTitle(selectedPriority.rawValue, for: .normal)
+        updateButtonSubtitle(priorityButton, subtitle: selectedPriority.rawValue)
         
         // Update category button
-        categoryButton.setTitle(selectedCategory.rawValue, for: .normal)
-        if let image = UIImage(systemName: selectedCategory.icon) {
-            categoryButton.setImage(image, for: .normal)
-        }
+        updateButtonSubtitle(categoryButton, subtitle: "\(getCategoryEmoji(selectedCategory)) \(selectedCategory.rawValue)")
         
         // Update tags button
         if selectedTags.isEmpty {
-            tagsButton.setTitle("Додати теги", for: .normal)
+            updateButtonSubtitle(tagsButton, subtitle: "Додати теги")
         } else {
-            let tagsText = selectedTags.joined(separator: ", ")
-            tagsButton.setTitle(tagsText, for: .normal)
+            updateButtonSubtitle(tagsButton, subtitle: selectedTags.joined(separator: ", "))
         }
         
         // Update schedule button
         if let schedule = selectedSchedule {
-            scheduleButton.setTitle(schedule, for: .normal)
+            updateButtonSubtitle(scheduleButton, subtitle: schedule)
         } else {
-            scheduleButton.setTitle("Вибрати розклад", for: .normal)
+            updateButtonSubtitle(scheduleButton, subtitle: "Не обрано")
+        }
+    }
+    
+    private func updateButtonSubtitle(_ button: UIButton, subtitle: String) {
+        for subview in button.subviews {
+            if let label = subview.viewWithTag(999) as? UILabel {
+                label.text = subtitle
+                return
+            }
         }
     }
     
@@ -674,6 +769,10 @@ class AddTaskViewController: UIViewController {
         alert.view.tintColor = ThemeManager.shared.accentColor
         alert.addAction(UIAlertAction(title: "ОК", style: .default))
         present(alert, animated: true)
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
 }
 
@@ -689,7 +788,7 @@ extension AddTaskViewController: UITextFieldDelegate {
 extension AddTaskViewController: UITextViewDelegate {
     func textViewDidBeginEditing(_ textView: UITextView) {
         let theme = ThemeManager.shared
-        if textView.textColor == theme.secondaryTextColor {
+        if textView.text == "Додайте деталі завдання..." {
             textView.text = ""
             textView.textColor = theme.textColor
         }
@@ -698,8 +797,16 @@ extension AddTaskViewController: UITextViewDelegate {
     func textViewDidEndEditing(_ textView: UITextView) {
         let theme = ThemeManager.shared
         if textView.text.isEmpty {
-            textView.text = "Введіть опис завдання..."
+            textView.text = "Додайте деталі завдання..."
             textView.textColor = theme.secondaryTextColor
+        }
+    }
+    
+    func textViewDidChange(_ textView: UITextView) {
+        // Забезпечуємо видимість тексту
+        let theme = ThemeManager.shared
+        if !textView.text.isEmpty && textView.text != "Додайте деталі завдання..." {
+            textView.textColor = theme.textColor
         }
     }
 }

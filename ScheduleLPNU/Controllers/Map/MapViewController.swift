@@ -316,6 +316,9 @@ class MapViewController: UIViewController, MKMapViewDelegate, UITableViewDelegat
             listView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
         ])
         
+        tableView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 120, right: 0)
+        tableView.scrollIndicatorInsets = UIEdgeInsets(top: 0, left: 0, bottom: 120, right: 0)
+        
         self.buildingsListView = listView
         self.tableView = tableView
     }
