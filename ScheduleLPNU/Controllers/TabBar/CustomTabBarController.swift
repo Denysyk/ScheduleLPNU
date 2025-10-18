@@ -41,11 +41,45 @@ class CustomTabBarController: UITabBarController {
         
         // Підносимо таб бар на передній план
         view.bringSubviewToFront(customTabBarView)
+        
+        // Застосовуємо padding для всіх ScrollView
+        applyTabBarPaddingToAllScrollViews()
     }
     
     private func setupCustomTabBar() {
         customTabBarView.delegate = self
         view.addSubview(customTabBarView)
+    }
+    
+    // MARK: - Tab Bar Padding для ScrollViews
+    private func applyTabBarPaddingToAllScrollViews() {
+        guard let selectedVC = selectedViewController else { return }
+        
+        let targetVC: UIViewController
+        if let navController = selectedVC as? UINavigationController {
+            targetVC = navController.topViewController ?? selectedVC
+        } else {
+            targetVC = selectedVC
+        }
+        
+        // Знаходимо всі ScrollView і додаємо padding
+        findScrollViews(in: targetVC.view).forEach { scrollView in
+            scrollView.contentInset.bottom = 100
+            scrollView.scrollIndicatorInsets.bottom = 100
+        }
+    }
+    
+    private func findScrollViews(in view: UIView) -> [UIScrollView] {
+        var scrollViews: [UIScrollView] = []
+        
+        for subview in view.subviews {
+            if let scrollView = subview as? UIScrollView {
+                scrollViews.append(scrollView)
+            }
+            scrollViews.append(contentsOf: findScrollViews(in: subview))
+        }
+        
+        return scrollViews
     }
 }
 
@@ -53,6 +87,11 @@ class CustomTabBarController: UITabBarController {
 extension CustomTabBarController: CustomTabBarDelegate {
     func didSelectTab(at index: Int) {
         selectedIndex = index
+        
+        // Застосовуємо padding після зміни табу
+        DispatchQueue.main.async {
+            self.applyTabBarPaddingToAllScrollViews()
+        }
     }
 }
 
@@ -73,54 +112,27 @@ class CustomTabBar: UIView {
     }
     
     required init?(coder: NSCoder) {
-        super.init(coder: coder)
-        setupUI()
-        setupThemeObserver()
+        fatalError("init(coder:) has not been implemented")
     }
     
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
     
-    private func setupThemeObserver() {
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(themeDidChange),
-            name: ThemeManager.themeChangedNotification,
-            object: nil
-        )
-    }
-    
-    @objc private func themeDidChange() {
-        // Оновлюємо кольори всіх кнопок
-        for button in buttons {
-            button.updateColors()
-        }
-    }
-    
-    override func didMoveToSuperview() {
-        super.didMoveToSuperview()
-        DispatchQueue.main.async {
-            self.selectButtonInternal(at: 0)
-        }
-    }
-    
     // MARK: - Setup
     private func setupUI() {
-        backgroundColor = .clear
-        layer.cornerRadius = 30
+        layer.cornerRadius = 25
         layer.shadowColor = UIColor.black.cgColor
+        layer.shadowOpacity = 0.1
         layer.shadowOffset = CGSize(width: 0, height: 4)
         layer.shadowRadius = 12
-        layer.shadowOpacity = 0.15
         
-        // Blur effect
         let blurEffect = UIBlurEffect(style: .systemMaterial)
         let blurView = UIVisualEffectView(effect: blurEffect)
-        blurView.layer.cornerRadius = 30
+        blurView.layer.cornerRadius = 25
         blurView.clipsToBounds = true
+        addSubview(blurView)
         
-        insertSubview(blurView, at: 0)
         blurView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             blurView.topAnchor.constraint(equalTo: topAnchor),
@@ -167,6 +179,9 @@ class CustomTabBar: UIView {
             stackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -12),
             stackView.centerYAnchor.constraint(equalTo: centerYAnchor)
         ])
+        
+        // Встановлюємо перший таб як вибраний
+        buttons[0].setSelected(true)
     }
     
     @objc private func buttonTapped(_ sender: TabBarButton) {
@@ -191,6 +206,22 @@ class CustomTabBar: UIView {
         selectedIndex = index
         buttons[index].setSelected(true)
     }
+    
+    private func setupThemeObserver() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(themeDidChange),
+            name: ThemeManager.themeChangedNotification,
+            object: nil
+        )
+    }
+    
+    @objc private func themeDidChange() {
+        // Оновлюємо кольори кнопок при зміні теми
+        buttons.forEach { button in
+            button.updateColors()
+        }
+    }
 }
 
 // MARK: - CustomTabBarDelegate Protocol
@@ -205,6 +236,8 @@ class TabBarButton: UIButton {
     private let iconImageView = UIImageView()
     private let customTitleLabel = UILabel()
     private let backgroundView = UIView()
+    private let contentContainer = UIView()
+    private let stackView = UIStackView()
     
     // MARK: - Properties
     private var isSelectedState = false
@@ -213,8 +246,6 @@ class TabBarButton: UIButton {
     private let selectedIcon: String
     
     private var widthConstraint: NSLayoutConstraint!
-    private let contentContainer = UIView()
-    private let stackView = UIStackView()
     
     // MARK: - Initialization
     init(icon: String, selectedIcon: String, title: String) {
@@ -328,6 +359,16 @@ class TabBarButton: UIButton {
         return UIColor.systemGray
     }
     
+    func updateColors() {
+        if isSelectedState {
+            iconImageView.tintColor = getSelectedIconColor()
+            customTitleLabel.textColor = getSelectedTextColor()
+            backgroundView.backgroundColor = getSelectedBackgroundColor()
+        } else {
+            iconImageView.tintColor = getUnselectedIconColor()
+        }
+    }
+    
     // MARK: - Selection State
     func setSelected(_ selected: Bool) {
         isSelectedState = selected
@@ -341,71 +382,23 @@ class TabBarButton: UIButton {
             
             UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0.2, options: [.curveEaseInOut]) {
                 self.widthConstraint.constant = fixedWidth
-                self.backgroundView.layer.cornerRadius = 20
                 self.backgroundView.backgroundColor = self.getSelectedBackgroundColor()
-                self.superview?.layoutIfNeeded()
-            }
-            
-            UIView.animate(withDuration: 0.15, delay: 0.15) {
-                self.customTitleLabel.isHidden = false
                 self.customTitleLabel.alpha = 1
+                self.customTitleLabel.isHidden = false
+                self.layoutIfNeeded()
             }
-            
         } else {
-            UIView.animate(withDuration: 0.2) {
+            iconImageView.image = UIImage(systemName: normalIcon)
+            iconImageView.tintColor = getUnselectedIconColor()
+            
+            UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0.2, options: [.curveEaseInOut]) {
+                self.widthConstraint.constant = 60
+                self.backgroundView.backgroundColor = .clear
                 self.customTitleLabel.alpha = 0
+                self.layoutIfNeeded()
             } completion: { _ in
                 self.customTitleLabel.isHidden = true
             }
-            
-            UIView.animate(withDuration: 0.3, delay: 0.1, usingSpringWithDamping: 0.8, initialSpringVelocity: 0.2) {
-                self.widthConstraint.constant = 60
-                self.backgroundView.backgroundColor = .clear
-                self.superview?.layoutIfNeeded()
-            } completion: { _ in
-                self.iconImageView.image = UIImage(systemName: self.normalIcon)
-                self.iconImageView.tintColor = self.getUnselectedIconColor()
-            }
-        }
-    }
-    
-    // MARK: - Update Colors
-    func updateColors() {
-        if isSelectedState {
-            iconImageView.tintColor = getSelectedIconColor()
-            customTitleLabel.textColor = getSelectedTextColor()
-            backgroundView.backgroundColor = getSelectedBackgroundColor()
-        }
-    }
-    
-    // MARK: - Touch Handling
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        super.touchesBegan(touches, with: event)
-        UIView.animate(withDuration: 0.1, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0.5) {
-            self.transform = CGAffineTransform(scaleX: 0.92, y: 0.92)
-        }
-    }
-    
-    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        super.touchesEnded(touches, with: event)
-        UIView.animate(withDuration: 0.2, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 0.8) {
-            self.transform = .identity
-        }
-    }
-    
-    override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
-        super.touchesCancelled(touches, with: event)
-        UIView.animate(withDuration: 0.15, delay: 0, usingSpringWithDamping: 0.7, initialSpringVelocity: 0.5) {
-            self.transform = .identity
-        }
-    }
-    
-    // MARK: - Theme Support
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        super.traitCollectionDidChange(previousTraitCollection)
-        
-        if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
-            updateColors()
         }
     }
 }
