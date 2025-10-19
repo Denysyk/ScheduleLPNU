@@ -21,6 +21,7 @@ class AddTaskViewController: UIViewController {
     private var scheduleButton: UIButton!
     private var categoryButton: UIButton!
     private var tagsButton: UIButton!
+    private var calendarButton: UIButton!
     
     // Дані
     private var selectedDate: Date?
@@ -29,6 +30,10 @@ class AddTaskViewController: UIViewController {
     private var selectedTags: [String] = []
     private var selectedSchedule: String?
     private var savedSchedules: [SavedSchedule] = []
+    private var shouldAddToCalendar = false
+    
+    private var originalTaskState: Task?
+    private var originalCalendarState: Bool = false
     
     var taskToEdit: Task?
 
@@ -45,11 +50,33 @@ class AddTaskViewController: UIViewController {
         }
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        // Перевіряємо що TextView правильно налаштований
+        DispatchQueue.main.async {
+            self.fixTextViewDisplay()
+        }
+    }
+    
+    private func fixTextViewDisplay() {
+        let theme = ThemeManager.shared
+        descriptionTextView.textColor = theme.textColor
+        descriptionTextView.tintColor = theme.accentColor
+        descriptionTextView.backgroundColor = theme.cardBackgroundColor
+        
+        // ВАЖЛИВО: Перевіряємо що TextView не перекривається
+        descriptionTextView.layer.zPosition = 1
+        descriptionTextView.bringSubviewToFront(descriptionTextView)
+        if let superview = descriptionTextView.superview {
+            superview.bringSubviewToFront(descriptionTextView)
+        }
+    }
+    
     private func setupUI() {
         let theme = ThemeManager.shared
         view.backgroundColor = theme.backgroundColor
         
-        // Navigation buttons
         navigationItem.leftBarButtonItem = UIBarButtonItem(
             title: "Скасувати",
             style: .plain,
@@ -87,8 +114,6 @@ class AddTaskViewController: UIViewController {
     }
     
     private func setupMainStack() {
-        let theme = ThemeManager.shared
-        
         mainStack = UIStackView()
         mainStack.axis = .vertical
         mainStack.spacing = 16
@@ -144,6 +169,13 @@ class AddTaskViewController: UIViewController {
         )
         scheduleButton.addTarget(self, action: #selector(scheduleButtonTapped), for: .touchUpInside)
         
+        calendarButton = createStyledButton(
+            title: "📅 Додати в календар",
+            icon: "calendar.badge.plus",
+            subtitle: "Не додано"
+        )
+        calendarButton.addTarget(self, action: #selector(calendarButtonTapped), for: .touchUpInside)
+        
         tagsButton = createStyledButton(
             title: "Теги",
             icon: "tag.fill",
@@ -158,6 +190,8 @@ class AddTaskViewController: UIViewController {
         buttonsCard.addArrangedSubview(categoryButton)
         buttonsCard.addArrangedSubview(createSeparator())
         buttonsCard.addArrangedSubview(scheduleButton)
+        buttonsCard.addArrangedSubview(createSeparator())
+        buttonsCard.addArrangedSubview(calendarButton)
         buttonsCard.addArrangedSubview(createSeparator())
         buttonsCard.addArrangedSubview(tagsButton)
         
@@ -209,24 +243,32 @@ class AddTaskViewController: UIViewController {
         return textField
     }
     
+    // ВИПРАВЛЕННЯ: TextView без overlay проблем
     private func createStyledTextView() -> UITextView {
         let theme = ThemeManager.shared
         let textView = UITextView()
         textView.translatesAutoresizingMaskIntoConstraints = false
         textView.font = UIFont.systemFont(ofSize: 16)
-        textView.backgroundColor = theme.backgroundColor
+        textView.backgroundColor = theme.cardBackgroundColor
+        textView.textColor = theme.textColor
+        textView.tintColor = theme.accentColor
         textView.layer.cornerRadius = 8
         textView.layer.borderWidth = 1
         textView.layer.borderColor = theme.separatorColor.cgColor
         textView.textContainerInset = UIEdgeInsets(top: 12, left: 12, bottom: 12, right: 12)
-        textView.delegate = self
         
-        if taskToEdit == nil {
-            textView.text = "Додайте деталі завдання..."
-            textView.textColor = theme.secondaryTextColor
-        } else {
-            textView.textColor = theme.textColor
-        }
+        // КРИТИЧНО: Переконуємося що нічого не накладається
+        textView.layer.zPosition = 10
+        textView.isEditable = true
+        textView.isSelectable = true
+        textView.isScrollEnabled = true
+        textView.showsVerticalScrollIndicator = false
+        textView.keyboardType = .default
+        textView.returnKeyType = .default
+        textView.enablesReturnKeyAutomatically = false
+        
+        // ПУСТИЙ TextView без placeholder
+        textView.text = ""
         
         textView.heightAnchor.constraint(equalToConstant: 100).isActive = true
         
@@ -240,20 +282,17 @@ class AddTaskViewController: UIViewController {
         button.contentHorizontalAlignment = .left
         button.heightAnchor.constraint(equalToConstant: 56).isActive = true
         
-        // Container for layout
         let container = UIView()
         container.isUserInteractionEnabled = false
         button.addSubview(container)
         container.translatesAutoresizingMaskIntoConstraints = false
         
-        // Icon
         let iconView = UIImageView(image: UIImage(systemName: icon))
         iconView.tintColor = theme.accentColor
         iconView.contentMode = .scaleAspectFit
         iconView.translatesAutoresizingMaskIntoConstraints = false
         container.addSubview(iconView)
         
-        // Title stack
         let textStack = UIStackView()
         textStack.axis = .vertical
         textStack.spacing = 2
@@ -269,12 +308,11 @@ class AddTaskViewController: UIViewController {
         subtitleLabel.text = subtitle
         subtitleLabel.font = UIFont.systemFont(ofSize: 14)
         subtitleLabel.textColor = theme.secondaryTextColor
-        subtitleLabel.tag = 999 // Для оновлення
+        subtitleLabel.tag = 999
         
         textStack.addArrangedSubview(titleLabel)
         textStack.addArrangedSubview(subtitleLabel)
         
-        // Chevron
         let chevron = UIImageView(image: UIImage(systemName: "chevron.right"))
         chevron.tintColor = theme.secondaryTextColor
         chevron.contentMode = .scaleAspectFit
@@ -282,9 +320,10 @@ class AddTaskViewController: UIViewController {
         container.addSubview(chevron)
         
         NSLayoutConstraint.activate([
-            container.leadingAnchor.constraint(equalTo: button.leadingAnchor),
-            container.trailingAnchor.constraint(equalTo: button.trailingAnchor),
-            container.centerYAnchor.constraint(equalTo: button.centerYAnchor),
+            container.topAnchor.constraint(equalTo: button.topAnchor),
+            container.leadingAnchor.constraint(equalTo: button.leadingAnchor, constant: 12),
+            container.trailingAnchor.constraint(equalTo: button.trailingAnchor, constant: -12),
+            container.bottomAnchor.constraint(equalTo: button.bottomAnchor),
             
             iconView.leadingAnchor.constraint(equalTo: container.leadingAnchor),
             iconView.centerYAnchor.constraint(equalTo: container.centerYAnchor),
@@ -293,12 +332,12 @@ class AddTaskViewController: UIViewController {
             
             textStack.leadingAnchor.constraint(equalTo: iconView.trailingAnchor, constant: 12),
             textStack.centerYAnchor.constraint(equalTo: container.centerYAnchor),
+            textStack.trailingAnchor.constraint(lessThanOrEqualTo: chevron.leadingAnchor, constant: -8),
             
             chevron.trailingAnchor.constraint(equalTo: container.trailingAnchor),
             chevron.centerYAnchor.constraint(equalTo: container.centerYAnchor),
-            chevron.widthAnchor.constraint(equalToConstant: 12),
-            chevron.heightAnchor.constraint(equalToConstant: 16),
-            chevron.leadingAnchor.constraint(greaterThanOrEqualTo: textStack.trailingAnchor, constant: 8)
+            chevron.widthAnchor.constraint(equalToConstant: 14),
+            chevron.heightAnchor.constraint(equalToConstant: 14)
         ])
         
         return button
@@ -307,9 +346,9 @@ class AddTaskViewController: UIViewController {
     private func createSeparator() -> UIView {
         let theme = ThemeManager.shared
         let separator = UIView()
-        separator.backgroundColor = theme.separatorColor
         separator.translatesAutoresizingMaskIntoConstraints = false
-        separator.heightAnchor.constraint(equalToConstant: 0.5).isActive = true
+        separator.backgroundColor = theme.separatorColor
+        separator.heightAnchor.constraint(equalToConstant: 1).isActive = true
         return separator
     }
     
@@ -375,28 +414,42 @@ class AddTaskViewController: UIViewController {
     
     private func loadTaskForEditing(_ task: Task) {
         titleTextField.text = task.title
-        
-        if let description = task.description, !description.isEmpty {
-            descriptionTextView.text = description
-            descriptionTextView.textColor = ThemeManager.shared.textColor
-        }
+        descriptionTextView.text = task.description ?? ""
         
         selectedDate = task.dueDate
         selectedPriority = task.priority
         selectedCategory = task.category
         selectedTags = task.tags
         selectedSchedule = task.associatedSchedule
+        shouldAddToCalendar = task.isInCalendar
+        
+        originalTaskState = task
+        originalCalendarState = task.isInCalendar
         
         updateButtonTitles()
+        
+        // Перевіряємо TextView після завантаження
+        DispatchQueue.main.async {
+            self.fixTextViewDisplay()
+        }
     }
     
     private func loadSchedules() {
         savedSchedules = ScheduleManager.shared.getSavedSchedules()
     }
     
-    // MARK: - Button Actions
-    
     @objc private func cancelTapped() {
+        if let originalTask = originalTaskState,
+           let currentTask = taskToEdit,
+           originalCalendarState != currentTask.isInCalendar {
+            
+            if originalCalendarState && !currentTask.isInCalendar {
+                TaskManager.shared.addTaskToCalendar(taskId: currentTask.id) { _, _ in }
+            } else if !originalCalendarState && currentTask.isInCalendar {
+                TaskManager.shared.removeTaskFromCalendar(taskId: currentTask.id) { _, _ in }
+            }
+        }
+        
         navigationController?.popViewController(animated: true)
     }
     
@@ -406,19 +459,14 @@ class AddTaskViewController: UIViewController {
             return
         }
         
-        // ВИПРАВЛЕНО: правильна перевірка опису
-        var finalDescription: String? = nil
-        if let text = descriptionTextView.text,
-           text != "Додайте деталі завдання...",
-           !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            finalDescription = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        }
+        let descriptionText = descriptionTextView.text ?? ""
+        let finalDescription = descriptionText.trimmingCharacters(in: .whitespacesAndNewlines)
+        let description = finalDescription.isEmpty ? nil : finalDescription
         
         if let existingTask = taskToEdit {
-            // Редагування
             var updatedTask = existingTask
             updatedTask.title = title.trimmingCharacters(in: .whitespacesAndNewlines)
-            updatedTask.description = finalDescription
+            updatedTask.description = description
             updatedTask.priority = selectedPriority
             updatedTask.category = selectedCategory
             updatedTask.tags = selectedTags
@@ -434,10 +482,9 @@ class AddTaskViewController: UIViewController {
             
             navigationController?.popViewController(animated: true)
         } else {
-            // Створення нового
             var task = Task(
                 title: title.trimmingCharacters(in: .whitespacesAndNewlines),
-                description: finalDescription,
+                description: description,
                 priority: selectedPriority,
                 dueDate: selectedDate,
                 category: selectedCategory,
@@ -449,126 +496,27 @@ class AddTaskViewController: UIViewController {
             
             if selectedDate != nil {
                 NotificationManager.shared.scheduleNotification(for: task)
-                showAddToCalendarPrompt(for: task)
-            } else {
-                navigationController?.popViewController(animated: true)
-            }
-        }
-    }
-    
-    // MARK: - Calendar Integration
-    
-    private func showAddToCalendarPrompt(for task: Task) {
-        let alert = UIAlertController(
-            title: "📅 Додати в календар?",
-            message: "Хочете додати це завдання до вашого iOS календаря?",
-            preferredStyle: .alert
-        )
-        
-        alert.addAction(UIAlertAction(title: "Так, додати", style: .default) { [weak self] _ in
-            self?.addTaskToCalendar(task: task)
-        })
-        
-        alert.addAction(UIAlertAction(title: "Ні, дякую", style: .cancel) { [weak self] _ in
-            self?.navigationController?.popViewController(animated: true)
-        })
-        
-        present(alert, animated: true)
-    }
-    
-    private func addTaskToCalendar(task: Task) {
-        let status = CalendarManager.shared.checkCalendarAuthorizationStatus()
-        
-        switch status {
-        case .notDetermined:
-            CalendarManager.shared.requestCalendarAccess { [weak self] granted, error in
-                if granted {
-                    self?.performAddToCalendar(task: task)
-                } else {
-                    self?.showCalendarPermissionDenied()
+                
+                if shouldAddToCalendar {
+                    TaskManager.shared.addTaskToCalendar(taskId: task.id) { [weak self] success, error in
+                        DispatchQueue.main.async {
+                            let message = success ? "✅ Завдання створено і додано в календар" : "✅ Завдання створено (помилка календаря)"
+                            self?.showToast(message: message)
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                                self?.navigationController?.popViewController(animated: true)
+                            }
+                        }
+                    }
+                    return
                 }
             }
-        case .authorized, .fullAccess:
-            performAddToCalendar(task: task)
-        case .denied, .restricted, .writeOnly:
-            showCalendarPermissionDenied()
-        @unknown default:
-            showCalendarPermissionDenied()
+            
+            navigationController?.popViewController(animated: true)
         }
     }
-    
-    private func performAddToCalendar(task: Task) {
-        TaskManager.shared.addTaskToCalendar(taskId: task.id) { [weak self] success, error in
-            DispatchQueue.main.async {
-                if success {
-                    let successAlert = UIAlertController(
-                        title: "✅ Готово!",
-                        message: "Завдання додано до календаря",
-                        preferredStyle: .alert
-                    )
-                    successAlert.addAction(UIAlertAction(title: "OK", style: .default) { _ in
-                        self?.navigationController?.popViewController(animated: true)
-                    })
-                    self?.present(successAlert, animated: true)
-                } else {
-                    let errorAlert = UIAlertController(
-                        title: "⚠️ Помилка",
-                        message: error ?? "Не вдалося додати до календаря",
-                        preferredStyle: .alert
-                    )
-                    errorAlert.addAction(UIAlertAction(title: "OK", style: .default) { _ in
-                        self?.navigationController?.popViewController(animated: true)
-                    })
-                    self?.present(errorAlert, animated: true)
-                }
-            }
-        }
-    }
-    
-    private func showCalendarPermissionDenied() {
-        let alert = UIAlertController(
-            title: "🔒 Доступ заборонено",
-            message: "Щоб додавати завдання в календар, увімкніть доступ у Налаштуваннях iOS.",
-            preferredStyle: .alert
-        )
-        
-        alert.addAction(UIAlertAction(title: "Відкрити налаштування", style: .default) { _ in
-            if let settingsUrl = URL(string: UIApplication.openSettingsURLString) {
-                UIApplication.shared.open(settingsUrl)
-            }
-        })
-        
-        alert.addAction(UIAlertAction(title: "Скасувати", style: .cancel) { [weak self] _ in
-            self?.navigationController?.popViewController(animated: true)
-        })
-        
-        present(alert, animated: true)
-    }
-    
-    // MARK: - Pickers
     
     @objc private func dueDateButtonTapped() {
-        showDatePicker()
-    }
-    
-    @objc private func priorityButtonTapped() {
-        showPriorityPicker()
-    }
-    
-    @objc private func scheduleButtonTapped() {
-        showSchedulePicker()
-    }
-    
-    @objc private func categoryButtonTapped() {
-        showCategoryPicker()
-    }
-    
-    @objc private func tagsButtonTapped() {
-        showTagsPicker()
-    }
-    
-    private func showDatePicker() {
-        let alert = UIAlertController(title: "Виберіть дату виконання", message: "\n\n\n\n\n\n\n\n\n", preferredStyle: .alert)
+        let alert = UIAlertController(title: "Виберіть дату виконання", message: nil, preferredStyle: .actionSheet)
         
         let datePicker = UIDatePicker()
         datePicker.datePickerMode = .dateAndTime
@@ -576,33 +524,37 @@ class AddTaskViewController: UIViewController {
         datePicker.locale = Locale(identifier: "uk_UA")
         datePicker.minimumDate = Date()
         
-        if let currentDate = selectedDate {
-            datePicker.date = currentDate
+        if let date = selectedDate {
+            datePicker.date = date
         }
         
-        alert.view.addSubview(datePicker)
-        datePicker.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            datePicker.centerXAnchor.constraint(equalTo: alert.view.centerXAnchor),
-            datePicker.topAnchor.constraint(equalTo: alert.view.topAnchor, constant: 50)
-        ])
+        let pickerContainer = UIViewController()
+        pickerContainer.preferredContentSize = CGSize(width: 0, height: 250)
+        pickerContainer.view = datePicker
+        alert.setValue(pickerContainer, forKey: "contentViewController")
         
-        alert.addAction(UIAlertAction(title: "Встановити", style: .default) { [weak self] _ in
+        alert.addAction(UIAlertAction(title: "Підтвердити", style: .default) { [weak self] _ in
             self?.selectedDate = datePicker.date
             self?.updateButtonTitles()
         })
         
-        alert.addAction(UIAlertAction(title: "Очистити", style: .destructive) { [weak self] _ in
+        alert.addAction(UIAlertAction(title: "Видалити дату", style: .destructive) { [weak self] _ in
             self?.selectedDate = nil
+            self?.shouldAddToCalendar = false
             self?.updateButtonTitles()
         })
         
         alert.addAction(UIAlertAction(title: "Скасувати", style: .cancel))
         
+        if let popover = alert.popoverPresentationController {
+            popover.sourceView = dueDateButton
+            popover.sourceRect = dueDateButton.bounds
+        }
+        
         present(alert, animated: true)
     }
     
-    private func showPriorityPicker() {
+    @objc private func priorityButtonTapped() {
         let alert = UIAlertController(title: "Виберіть пріоритет", message: nil, preferredStyle: .actionSheet)
         
         for priority in Task.TaskPriority.allCases {
@@ -628,11 +580,12 @@ class AddTaskViewController: UIViewController {
         present(alert, animated: true)
     }
     
-    private func showCategoryPicker() {
+    @objc private func categoryButtonTapped() {
         let alert = UIAlertController(title: "Виберіть категорію", message: nil, preferredStyle: .actionSheet)
         
         for category in Task.TaskCategory.allCases {
-            let action = UIAlertAction(title: "\(getCategoryEmoji(category)) \(category.rawValue)", style: .default) { [weak self] _ in
+            let emoji = getCategoryEmoji(category)
+            let action = UIAlertAction(title: "\(emoji) \(category.rawValue)", style: .default) { [weak self] _ in
                 self?.selectedCategory = category
                 self?.updateButtonTitles()
             }
@@ -654,42 +607,31 @@ class AddTaskViewController: UIViewController {
         present(alert, animated: true)
     }
     
-    private func getCategoryEmoji(_ category: Task.TaskCategory) -> String {
-        switch category {
-        case .personal: return "👤"
-        case .work: return "💼"
-        case .study: return "📚"
-        case .health: return "❤️"
-        case .shopping: return "🛒"
-        case .other: return "📁"
+    @objc private func scheduleButtonTapped() {
+        if savedSchedules.isEmpty {
+            showAlert(title: "Немає розкладів", message: "Спочатку збережіть розклад на головній сторінці")
+            return
         }
-    }
-    
-    private func showSchedulePicker() {
+        
         let alert = UIAlertController(title: "Прив'язати до розкладу", message: nil, preferredStyle: .actionSheet)
         
-        if savedSchedules.isEmpty {
-            alert.message = "У вас ще немає збережених розкладів"
-        } else {
-            for schedule in savedSchedules {
-                let action = UIAlertAction(title: schedule.title, style: .default) { [weak self] _ in
-                    self?.selectedSchedule = schedule.title
-                    self?.updateButtonTitles()
-                }
-                
-                if schedule.title == selectedSchedule {
-                    action.setValue(UIImage(systemName: "checkmark"), forKey: "image")
-                }
-                
-                alert.addAction(action)
-            }
-            
-            let clearAction = UIAlertAction(title: "Очистити", style: .destructive) { [weak self] _ in
-                self?.selectedSchedule = nil
+        for schedule in savedSchedules {
+            let action = UIAlertAction(title: schedule.title, style: .default) { [weak self] _ in
+                self?.selectedSchedule = schedule.title
                 self?.updateButtonTitles()
             }
-            alert.addAction(clearAction)
+            
+            if schedule.title == selectedSchedule {
+                action.setValue(UIImage(systemName: "checkmark"), forKey: "image")
+            }
+            
+            alert.addAction(action)
         }
+        
+        alert.addAction(UIAlertAction(title: "Видалити прив'язку", style: .destructive) { [weak self] _ in
+            self?.selectedSchedule = nil
+            self?.updateButtonTitles()
+        })
         
         alert.addAction(UIAlertAction(title: "Скасувати", style: .cancel))
         
@@ -701,11 +643,62 @@ class AddTaskViewController: UIViewController {
         present(alert, animated: true)
     }
     
-    private func showTagsPicker() {
-        let alert = UIAlertController(title: "Додайте теги", message: "Розділіть теги комами", preferredStyle: .alert)
+    @objc private func calendarButtonTapped() {
+        guard selectedDate != nil else {
+            showAlert(title: "Увага", message: "Спочатку виберіть дату виконання завдання")
+            return
+        }
+        
+        if let task = taskToEdit {
+            if task.isInCalendar {
+                TaskManager.shared.removeTaskFromCalendar(taskId: task.id) { [weak self] success, error in
+                    DispatchQueue.main.async {
+                        if success {
+                            if let editedTask = self?.taskToEdit {
+                                var updatedTask = editedTask
+                                updatedTask.isInCalendar = false
+                                self?.taskToEdit = updatedTask
+                            }
+                            self?.shouldAddToCalendar = false
+                            self?.updateButtonTitles()
+                            self?.showToast(message: "✅ Видалено з календаря")
+                        } else {
+                            self?.showAlert(title: "Помилка", message: error ?? "Не вдалося видалити з календаря")
+                        }
+                    }
+                }
+            } else {
+                TaskManager.shared.addTaskToCalendar(taskId: task.id) { [weak self] success, error in
+                    DispatchQueue.main.async {
+                        if success {
+                            if let editedTask = self?.taskToEdit {
+                                var updatedTask = editedTask
+                                updatedTask.isInCalendar = true
+                                self?.taskToEdit = updatedTask
+                            }
+                            self?.shouldAddToCalendar = true
+                            self?.updateButtonTitles()
+                            self?.showToast(message: "✅ Додано в календар")
+                        } else {
+                            self?.showAlert(title: "Помилка", message: error ?? "Не вдалося додати в календар")
+                        }
+                    }
+                }
+            }
+        } else {
+            shouldAddToCalendar.toggle()
+            updateButtonTitles()
+            
+            let message = shouldAddToCalendar ? "✅ Буде додано в календар після створення" : "❌ Не буде додано в календар"
+            showToast(message: message)
+        }
+    }
+    
+    @objc private func tagsButtonTapped() {
+        let alert = UIAlertController(title: "Додати теги", message: "Введіть теги через кому", preferredStyle: .alert)
         
         alert.addTextField { textField in
-            textField.placeholder = "тег1, тег2, тег3"
+            textField.placeholder = "навчання, важливо, проект"
             textField.text = self.selectedTags.joined(separator: ", ")
         }
         
@@ -724,89 +717,106 @@ class AddTaskViewController: UIViewController {
     }
     
     private func updateButtonTitles() {
-        // Update date button
         if let date = selectedDate {
             let formatter = DateFormatter()
             formatter.locale = Locale(identifier: "uk_UA")
+            formatter.dateStyle = .medium
+            formatter.timeStyle = .short
             formatter.dateFormat = "dd MMMM yyyy 'о' HH:mm"
-            updateButtonSubtitle(dueDateButton, subtitle: formatter.string(from: date))
+            
+            updateButtonSubtitle(button: dueDateButton, subtitle: formatter.string(from: date))
         } else {
-            updateButtonSubtitle(dueDateButton, subtitle: "Не встановлено")
+            updateButtonSubtitle(button: dueDateButton, subtitle: "Не встановлено")
         }
         
-        // Update priority button
-        updateButtonSubtitle(priorityButton, subtitle: selectedPriority.rawValue)
+        updateButtonSubtitle(button: priorityButton, subtitle: selectedPriority.rawValue)
         
-        // Update category button
-        updateButtonSubtitle(categoryButton, subtitle: "\(getCategoryEmoji(selectedCategory)) \(selectedCategory.rawValue)")
-        
-        // Update tags button
-        if selectedTags.isEmpty {
-            updateButtonSubtitle(tagsButton, subtitle: "Додати теги")
-        } else {
-            updateButtonSubtitle(tagsButton, subtitle: selectedTags.joined(separator: ", "))
-        }
-        
-        // Update schedule button
-        if let schedule = selectedSchedule {
-            updateButtonSubtitle(scheduleButton, subtitle: schedule)
-        } else {
-            updateButtonSubtitle(scheduleButton, subtitle: "Не обрано")
-        }
-    }
-    
-    private func updateButtonSubtitle(_ button: UIButton, subtitle: String) {
-        for subview in button.subviews {
-            if let label = subview.viewWithTag(999) as? UILabel {
-                label.text = subtitle
-                return
+        let emoji = getCategoryEmoji(selectedCategory)
+        updateButtonSubtitle(button: categoryButton, subtitle: "\(emoji) \(selectedCategory.rawValue)")
+                
+                if let schedule = selectedSchedule {
+                    updateButtonSubtitle(button: scheduleButton, subtitle: schedule)
+                } else {
+                    updateButtonSubtitle(button: scheduleButton, subtitle: "Не обрано")
+                }
+                
+                let isInCalendar = taskToEdit?.isInCalendar ?? shouldAddToCalendar
+                if isInCalendar {
+                    updateButtonSubtitle(button: calendarButton, subtitle: "✅ Додано в календар")
+                } else {
+                    updateButtonSubtitle(button: calendarButton, subtitle: "Не додано")
+                }
+                
+                if selectedTags.isEmpty {
+                    updateButtonSubtitle(button: tagsButton, subtitle: "Додати теги")
+                } else {
+                    updateButtonSubtitle(button: tagsButton, subtitle: selectedTags.joined(separator: ", "))
+                }
+            }
+            
+            private func getCategoryEmoji(_ category: Task.TaskCategory) -> String {
+                switch category {
+                case .work: return "💼"
+                case .personal: return "👤"
+                case .study: return "📚"
+                case .health: return "❤️"
+                case .shopping: return "🛒"
+                case .other: return "📁"
+                }
+            }
+            
+            private func updateButtonSubtitle(button: UIButton, subtitle: String) {
+                func findSubtitleLabel(in view: UIView) -> UILabel? {
+                    for subview in view.subviews {
+                        if let label = subview as? UILabel, label.tag == 999 {
+                            return label
+                        }
+                        if let foundLabel = findSubtitleLabel(in: subview) {
+                            return foundLabel
+                        }
+                    }
+                    return nil
+                }
+                
+                if let subtitleLabel = findSubtitleLabel(in: button) {
+                    subtitleLabel.text = subtitle
+                    
+                    if button == calendarButton {
+                        let theme = ThemeManager.shared
+                        if subtitle.contains("✅") {
+                            subtitleLabel.textColor = theme.accentColor
+                        } else {
+                            subtitleLabel.textColor = theme.secondaryTextColor
+                        }
+                    }
+                }
+            }
+            
+            private func showAlert(title: String, message: String) {
+                let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+                alert.view.tintColor = ThemeManager.shared.accentColor
+                alert.addAction(UIAlertAction(title: "ОК", style: .default))
+                present(alert, animated: true)
+            }
+            
+            private func showToast(message: String) {
+                let alert = UIAlertController(title: nil, message: message, preferredStyle: .alert)
+                present(alert, animated: true)
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                    alert.dismiss(animated: true)
+                }
+            }
+            
+            deinit {
+                NotificationCenter.default.removeObserver(self)
             }
         }
-    }
-    
-    private func showAlert(title: String, message: String) {
-        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
-        alert.view.tintColor = ThemeManager.shared.accentColor
-        alert.addAction(UIAlertAction(title: "ОК", style: .default))
-        present(alert, animated: true)
-    }
-    
-    deinit {
-        NotificationCenter.default.removeObserver(self)
-    }
-}
 
-// MARK: - UITextFieldDelegate
-extension AddTaskViewController: UITextFieldDelegate {
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        textField.resignFirstResponder()
-        return true
-    }
-}
-
-// MARK: - UITextViewDelegate
-extension AddTaskViewController: UITextViewDelegate {
-    func textViewDidBeginEditing(_ textView: UITextView) {
-        let theme = ThemeManager.shared
-        if textView.text == "Додайте деталі завдання..." {
-            textView.text = ""
-            textView.textColor = theme.textColor
+        // MARK: - UITextFieldDelegate
+        extension AddTaskViewController: UITextFieldDelegate {
+            func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+                textField.resignFirstResponder()
+                return true
+            }
         }
-    }
-    
-    func textViewDidEndEditing(_ textView: UITextView) {
-        let theme = ThemeManager.shared
-        if textView.text.isEmpty {
-            textView.text = "Додайте деталі завдання..."
-            textView.textColor = theme.secondaryTextColor
-        }
-    }
-    
-    func textViewDidChange(_ textView: UITextView) {
-        // Забезпечуємо видимість тексту
-        let theme = ThemeManager.shared
-        if !textView.text.isEmpty && textView.text != "Додайте деталі завдання..." {
-            textView.textColor = theme.textColor
-        }
-    }
-}

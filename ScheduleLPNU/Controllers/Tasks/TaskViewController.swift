@@ -1,12 +1,4 @@
-//
-//  TaskViewController.swift
-//  ScheduleLPNU
-//
-//  Created by Denys Brativnyk on 26.05.2025.
-//
-
 import UIKit
-import UserNotifications
 
 class TaskViewController: UIViewController {
     
@@ -15,55 +7,43 @@ class TaskViewController: UIViewController {
     @IBOutlet weak var emptyStateView: UIView!
     
     private var tasks: [Task] = []
-    private var filteredTasks: [Task] = []
     private var allTasks: [Task] = []
-    private var showCompletedTasks = true
-    private var currentSortOption: SortOption = .createdDate
-    private var selectedCategory: Task.TaskCategory?
+    private var filteredTasks: [Task] = []
     private var searchController: UISearchController!
     
     private var isSelectionMode = false
-    private var selectedTaskIds: Set<String> = []
-
+    private var selectedTaskIds = Set<String>()
+    
+    private var selectedCategory: Task.TaskCategory?
+    private var showCompletedTasks = true
+    
     enum SortOption: String, CaseIterable {
         case createdDate = "За датою створення"
-        case dueDate = "За датою виконання"
+        case dueDate = "За терміном виконання"
         case priority = "За пріоритетом"
         case alphabetical = "За алфавітом"
     }
-
-    // MARK: - Lifecycle
+    
+    private var currentSortOption: SortOption = .createdDate
     
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
         setupTableView()
+        setupSearchController()
         setupThemeObserver()
-        applyTheme()
         loadTasks()
-        
-        NotificationManager.shared.requestPermission { granted in
-            // Просто запитуємо дозвіл, без додаткових сповіщень
-        }
+        applyTheme()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         loadTasks()
-        applyTheme()
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        UIApplication.shared.applicationIconBadgeNumber = 0
-        UNUserNotificationCenter.current().removeAllDeliveredNotifications()
     }
     
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
-
-    // MARK: - Setup
     
     private func setupThemeObserver() {
         NotificationCenter.default.addObserver(
@@ -84,19 +64,14 @@ class TaskViewController: UIViewController {
         view.backgroundColor = theme.backgroundColor
         tableView.backgroundColor = theme.backgroundColor
         
+        // ВИПРАВЛЕНО: Empt state тепер прозорий
+        emptyStateView.backgroundColor = .clear
+        
         addButton.backgroundColor = theme.accentColor
-        addButton.tintColor = .white
         
-        navigationController?.navigationBar.tintColor = theme.accentColor
-        navigationController?.navigationBar.titleTextAttributes = [
-            NSAttributedString.Key.foregroundColor: theme.textColor
-        ]
-        
-        if let searchController = searchController {
-            searchController.searchBar.tintColor = theme.accentColor
-            if let textField = searchController.searchBar.value(forKey: "searchField") as? UITextField {
-                textField.textColor = theme.textColor
-            }
+        if let textField = searchController.searchBar.value(forKey: "searchField") as? UITextField {
+            textField.backgroundColor = theme.cardBackgroundColor
+            textField.textColor = theme.textColor
         }
         
         tableView.reloadData()
@@ -156,6 +131,7 @@ class TaskViewController: UIViewController {
         searchController.searchBar.tintColor = theme.accentColor
         
         if let textField = searchController.searchBar.value(forKey: "searchField") as? UITextField {
+            textField.backgroundColor = theme.cardBackgroundColor
             textField.textColor = theme.textColor
         }
         
@@ -282,77 +258,102 @@ class TaskViewController: UIViewController {
             tableView.isHidden = true
             emptyStateView.isHidden = false
             
-            let theme = ThemeManager.shared
-            
-            // Очищуємо попередній вміст
-            emptyStateView.subviews.forEach { $0.removeFromSuperview() }
-            
-            let stackView = UIStackView()
-            stackView.axis = .vertical
-            stackView.spacing = 20
-            stackView.alignment = .center
-            stackView.translatesAutoresizingMaskIntoConstraints = false
-            emptyStateView.addSubview(stackView)
-            
-            // Іконка (як на екрані розкладу)
-            let iconContainer = UIView()
-            iconContainer.translatesAutoresizingMaskIntoConstraints = false
-            
-            let iconImageView = UIImageView(image: UIImage(systemName: "list.bullet.clipboard"))
-            iconImageView.tintColor = theme.secondaryTextColor.withAlphaComponent(0.4)
-            iconImageView.contentMode = .scaleAspectFit
-            iconImageView.translatesAutoresizingMaskIntoConstraints = false
-            iconContainer.addSubview(iconImageView)
-            
-            NSLayoutConstraint.activate([
-                iconImageView.centerXAnchor.constraint(equalTo: iconContainer.centerXAnchor),
-                iconImageView.centerYAnchor.constraint(equalTo: iconContainer.centerYAnchor),
-                iconImageView.widthAnchor.constraint(equalToConstant: 100),
-                iconImageView.heightAnchor.constraint(equalToConstant: 100),
-                iconContainer.widthAnchor.constraint(equalToConstant: 120),
-                iconContainer.heightAnchor.constraint(equalToConstant: 120)
-            ])
-            
-            // Заголовок
-            let titleLabel = UILabel()
-            titleLabel.font = .systemFont(ofSize: 20, weight: .semibold)
-            titleLabel.textColor = theme.secondaryTextColor
-            titleLabel.textAlignment = .center
-            titleLabel.numberOfLines = 0
-            
-            // Підзаголовок
-            let subtitleLabel = UILabel()
-            subtitleLabel.font = .systemFont(ofSize: 16)
-            subtitleLabel.textColor = theme.secondaryTextColor.withAlphaComponent(0.7)
-            subtitleLabel.textAlignment = .center
-            subtitleLabel.numberOfLines = 0
-            
-            if let searchText = searchController?.searchBar.text, !searchText.isEmpty {
-                titleLabel.text = "Нічого не знайдено"
-                subtitleLabel.text = "Спробуйте змінити запит пошуку"
-            } else if selectedCategory != nil {
-                titleLabel.text = "Список порожній"
-                subtitleLabel.text = "У цій категорії ще немає завдань"
-            } else {
-                titleLabel.text = "Список завдань пустий"
-                subtitleLabel.text = "Натисніть + щоб додати нове завдання\nта почати організовувати свій день"
-            }
-            
-            stackView.addArrangedSubview(iconContainer)
-            stackView.addArrangedSubview(titleLabel)
-            stackView.addArrangedSubview(subtitleLabel)
-            
-            NSLayoutConstraint.activate([
-                stackView.centerXAnchor.constraint(equalTo: emptyStateView.centerXAnchor),
-                stackView.centerYAnchor.constraint(equalTo: emptyStateView.centerYAnchor),
-                stackView.leadingAnchor.constraint(greaterThanOrEqualTo: emptyStateView.leadingAnchor, constant: 40),
-                stackView.trailingAnchor.constraint(lessThanOrEqualTo: emptyStateView.trailingAnchor, constant: -40)
-            ])
+            setupEmptyState()
         } else {
             tableView.isHidden = false
             emptyStateView.isHidden = true
             tableView.reloadData()
         }
+    }
+    
+    // ВИПРАВЛЕННЯ 1: Empty State без білої рамки
+    private func setupEmptyState() {
+        let theme = ThemeManager.shared
+        
+        // Видаляємо старі subviews
+        emptyStateView.subviews.forEach { $0.removeFromSuperview() }
+        
+        // ВИПРАВЛЕНО: прибираємо backgroundColor
+        emptyStateView.backgroundColor = .clear
+        
+        let stackView = UIStackView()
+        stackView.axis = .vertical
+        stackView.spacing = 20
+        stackView.alignment = .center
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        emptyStateView.addSubview(stackView)
+        
+        // Іконка
+        let iconContainer = UIView()
+        iconContainer.translatesAutoresizingMaskIntoConstraints = false
+        
+        let iconImageView = UIImageView(image: UIImage(systemName: "list.bullet.clipboard"))
+        iconImageView.tintColor = theme.secondaryTextColor.withAlphaComponent(0.4)
+        iconImageView.contentMode = .scaleAspectFit
+        iconImageView.translatesAutoresizingMaskIntoConstraints = false
+        iconContainer.addSubview(iconImageView)
+        
+        NSLayoutConstraint.activate([
+            iconImageView.centerXAnchor.constraint(equalTo: iconContainer.centerXAnchor),
+            iconImageView.centerYAnchor.constraint(equalTo: iconContainer.centerYAnchor),
+            iconImageView.widthAnchor.constraint(equalToConstant: 100),
+            iconImageView.heightAnchor.constraint(equalToConstant: 100),
+            iconContainer.widthAnchor.constraint(equalToConstant: 120),
+            iconContainer.heightAnchor.constraint(equalToConstant: 120)
+        ])
+        
+        // Заголовок
+        let titleLabel = UILabel()
+        titleLabel.font = .systemFont(ofSize: 20, weight: .semibold)
+        titleLabel.textColor = theme.secondaryTextColor
+        titleLabel.textAlignment = .center
+        titleLabel.numberOfLines = 0
+        
+        // Підзаголовок
+        let subtitleLabel = UILabel()
+        subtitleLabel.font = .systemFont(ofSize: 16)
+        subtitleLabel.textColor = theme.secondaryTextColor.withAlphaComponent(0.7)
+        subtitleLabel.textAlignment = .center
+        subtitleLabel.numberOfLines = 0
+        
+        if let searchText = searchController?.searchBar.text, !searchText.isEmpty {
+            titleLabel.text = "Нічого не знайдено"
+            subtitleLabel.text = "Спробуйте змінити запит пошуку"
+        } else if selectedCategory != nil {
+            titleLabel.text = "Список порожній"
+            subtitleLabel.text = "У цій категорії ще немає завдань"
+        } else {
+            titleLabel.text = "Список завдань пустий"
+            subtitleLabel.text = "Натисніть + щоб додати нове завдання\nта почати організовувати свій день"
+        }
+        
+        stackView.addArrangedSubview(iconContainer)
+        stackView.addArrangedSubview(titleLabel)
+        stackView.addArrangedSubview(subtitleLabel)
+        
+        NSLayoutConstraint.activate([
+            stackView.centerXAnchor.constraint(equalTo: emptyStateView.centerXAnchor),
+            stackView.centerYAnchor.constraint(equalTo: emptyStateView.centerYAnchor),
+            stackView.leadingAnchor.constraint(greaterThanOrEqualTo: emptyStateView.leadingAnchor, constant: 40),
+            stackView.trailingAnchor.constraint(lessThanOrEqualTo: emptyStateView.trailingAnchor, constant: -40)
+        ])
+    }
+    
+    private func setupSearchController() {
+        searchController = UISearchController(searchResultsController: nil)
+        searchController.searchResultsUpdater = self
+        searchController.obscuresBackgroundDuringPresentation = false
+        searchController.searchBar.placeholder = "Пошук завдань..."
+        searchController.searchBar.tintColor = ThemeManager.shared.accentColor
+        
+        if let textField = searchController.searchBar.value(forKey: "searchField") as? UITextField {
+            textField.backgroundColor = ThemeManager.shared.cardBackgroundColor
+            textField.textColor = ThemeManager.shared.textColor
+        }
+        
+        navigationItem.searchController = searchController
+        navigationItem.hidesSearchBarWhenScrolling = false
+        definesPresentationContext = true
     }
     
     // MARK: - Selection Mode
@@ -410,46 +411,58 @@ class TaskViewController: UIViewController {
             }
             
             present(alert, animated: true)
-        } else {
-            let alert = UIAlertController(title: "Дії з вибраними (\(selectedCount))", message: nil, preferredStyle: .actionSheet)
-            
-            alert.addAction(UIAlertAction(title: "✅ Позначити як виконані", style: .default) { [weak self] _ in
-                self?.markSelectedTasks(completed: true)
-            })
-            
-            alert.addAction(UIAlertAction(title: "◯ Позначити як не виконані", style: .default) { [weak self] _ in
-                self?.markSelectedTasks(completed: false)
-            })
-            
-            alert.addAction(UIAlertAction(title: "🗑 Видалити", style: .destructive) { [weak self] _ in
-                self?.deleteSelectedTasks()
-            })
-            
-            alert.addAction(UIAlertAction(title: "Скасувати", style: .cancel))
-            
-            if let popover = alert.popoverPresentationController {
-                popover.barButtonItem = navigationItem.rightBarButtonItems?.first
-            }
-            
-            present(alert, animated: true)
-        }
-    }
-    
-    private func markSelectedTasks(completed: Bool) {
-        for taskId in selectedTaskIds {
-            if completed {
-                TaskManager.shared.completeTask(withId: taskId)
-            } else {
-                TaskManager.shared.uncompleteTask(withId: taskId)
-            }
+            return
         }
         
+        let alert = UIAlertController(
+            title: "Дії з \(selectedCount) завданнями",
+            message: nil,
+            preferredStyle: .actionSheet
+        )
+        
+        alert.addAction(UIAlertAction(title: "Позначити виконаними", style: .default) { [weak self] _ in
+            self?.completeSelectedTasks()
+        })
+        
+        alert.addAction(UIAlertAction(title: "Позначити невиконаними", style: .default) { [weak self] _ in
+            self?.uncompleteSelectedTasks()
+        })
+        
+        alert.addAction(UIAlertAction(title: "Видалити", style: .destructive) { [weak self] _ in
+            self?.showDeleteConfirmation()
+        })
+        
+        alert.addAction(UIAlertAction(title: "Скасувати", style: .cancel))
+        
+        if let popover = alert.popoverPresentationController {
+            popover.barButtonItem = navigationItem.rightBarButtonItems?.first
+        }
+        
+        present(alert, animated: true)
+    }
+
+    private func completeSelectedTasks() {
+        for taskId in selectedTaskIds {
+            TaskManager.shared.completeTask(withId: taskId)
+        }
         toggleSelectionMode()
         loadTasks()
     }
 
-    private func deleteSelectedTasks() {
-        let alert = UIAlertController(title: "Видалити завдання", message: "Видалити \(selectedTaskIds.count) завдань?", preferredStyle: .alert)
+    private func uncompleteSelectedTasks() {
+        for taskId in selectedTaskIds {
+            TaskManager.shared.uncompleteTask(withId: taskId)
+        }
+        toggleSelectionMode()
+        loadTasks()
+    }
+
+    private func showDeleteConfirmation() {
+        let alert = UIAlertController(
+            title: "Видалити завдання?",
+            message: "Ви впевнені, що хочете видалити \(selectedTaskIds.count) завдань?",
+            preferredStyle: .alert
+        )
         
         alert.addAction(UIAlertAction(title: "Видалити", style: .destructive) { [weak self] _ in
             guard let self = self else { return }
@@ -532,7 +545,7 @@ class TaskViewController: UIViewController {
         alert.addAction(UIAlertAction(title: "Скасувати", style: .cancel))
         
         if let popover = alert.popoverPresentationController {
-            popover.barButtonItem = navigationItem.leftBarButtonItems?.first
+            popover.barButtonItem = navigationItem.rightBarButtonItems?[2]
         }
         
         present(alert, animated: true)
@@ -540,8 +553,8 @@ class TaskViewController: UIViewController {
     
     private func getCategoryEmoji(_ category: Task.TaskCategory) -> String {
         switch category {
-        case .personal: return "👤"
         case .work: return "💼"
+        case .personal: return "👤"
         case .study: return "📚"
         case .health: return "❤️"
         case .shopping: return "🛒"
@@ -550,25 +563,18 @@ class TaskViewController: UIViewController {
     }
     
     @objc private func showStatistics() {
-        let statisticsVC = StatisticsViewController()
-        navigationController?.pushViewController(statisticsVC, animated: true)
+        let statsVC = StatisticsViewController()
+        navigationController?.pushViewController(statsVC, animated: true)
     }
     
     @IBAction func addButtonTapped(_ sender: UIButton) {
-        UIView.animate(withDuration: 0.1, animations: {
-            sender.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
-        }) { _ in
-            UIView.animate(withDuration: 0.1) {
-                sender.transform = CGAffineTransform.identity
-            }
+        if let addTaskVC = storyboard?.instantiateViewController(withIdentifier: "AddTaskViewController") as? AddTaskViewController {
+            navigationController?.pushViewController(addTaskVC, animated: true)
         }
-        
-        performSegue(withIdentifier: "showAddTask", sender: self)
     }
     
     private func showEditTaskViewController(task: Task) {
-        let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        if let editTaskVC = storyboard.instantiateViewController(withIdentifier: "AddTaskViewController") as? AddTaskViewController {
+        if let editTaskVC = storyboard?.instantiateViewController(withIdentifier: "AddTaskViewController") as? AddTaskViewController {
             editTaskVC.taskToEdit = task
             navigationController?.pushViewController(editTaskVC, animated: true)
         }
@@ -647,7 +653,7 @@ class TaskViewController: UIViewController {
             }
         }
     }
-    
+
     private func removeTaskFromCalendar(task: Task) {
         TaskManager.shared.removeTaskFromCalendar(taskId: task.id) { [weak self] success, error in
             DispatchQueue.main.async {
