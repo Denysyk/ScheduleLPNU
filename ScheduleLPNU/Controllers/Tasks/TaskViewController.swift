@@ -64,10 +64,18 @@ class TaskViewController: UIViewController {
         view.backgroundColor = theme.backgroundColor
         tableView.backgroundColor = theme.backgroundColor
         
-        // ВИПРАВЛЕНО: Empt state тепер прозорий
         emptyStateView.backgroundColor = .clear
         
         addButton.backgroundColor = theme.accentColor
+        
+        // ДОДАЙТЕ ЦЮ ЧАСТИНУ - оновлення кольорів навігаційних кнопок
+        navigationController?.navigationBar.tintColor = theme.accentColor
+        navigationItem.rightBarButtonItems?.forEach { barButton in
+            barButton.tintColor = theme.accentColor
+        }
+        navigationItem.leftBarButtonItems?.forEach { barButton in
+            barButton.tintColor = theme.accentColor
+        }
         
         if let textField = searchController.searchBar.value(forKey: "searchField") as? UITextField {
             textField.backgroundColor = theme.cardBackgroundColor

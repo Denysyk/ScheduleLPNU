@@ -5,6 +5,19 @@
 
 import UIKit
 
+// Кастомний ScrollView тільки з горизонтальним скролом
+class HorizontalScrollView: UIScrollView {
+    override var contentOffset: CGPoint {
+        get {
+            return super.contentOffset
+        }
+        set {
+            // Дозволяємо тільки горизонтальний скролінг
+            super.contentOffset = CGPoint(x: newValue.x, y: 0)
+        }
+    }
+}
+
 class TaskTableViewCell: UITableViewCell {
     // UI Elements
     private let containerView = UIView()
@@ -19,8 +32,8 @@ class TaskTableViewCell: UITableViewCell {
     private let categoryIconView = UIImageView()
     private let categoryLabel = UILabel()
     private let tagsStackView = UIStackView()
-    private let tagsScrollView = UIScrollView()
-    private let calendarIndicator = UIImageView() // НОВЕ
+    private let tagsScrollView = HorizontalScrollView() // Змінено на HorizontalScrollView
+    private let calendarIndicator = UIImageView()
     
     var onCompletionToggle: ((String) -> Void)?
     private var taskId: String?
@@ -109,8 +122,10 @@ class TaskTableViewCell: UITableViewCell {
         dueDateLabel.font = .systemFont(ofSize: 12)
         scheduleLabel.font = .systemFont(ofSize: 12)
         
+        // Налаштування ScrollView - тепер дозволяємо скролінг
         tagsScrollView.showsHorizontalScrollIndicator = false
         tagsScrollView.showsVerticalScrollIndicator = false
+        // НЕ вимикаємо isScrollEnabled - тепер можна скролити горизонтально
         
         tagsStackView.axis = .horizontal
         tagsStackView.spacing = 6
@@ -120,7 +135,7 @@ class TaskTableViewCell: UITableViewCell {
         completionButton.layer.borderWidth = 2
         completionButton.addTarget(self, action: #selector(completionButtonTapped), for: .touchUpInside)
         
-        // НОВЕ: Налаштування індикатора календаря
+        // Налаштування індикатора календаря
         calendarIndicator.image = UIImage(systemName: "calendar.badge.clock")
         calendarIndicator.contentMode = .scaleAspectFit
         calendarIndicator.tintColor = .systemBlue
@@ -164,7 +179,7 @@ class TaskTableViewCell: UITableViewCell {
             titleLabel.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 16),
             titleLabel.trailingAnchor.constraint(equalTo: calendarIndicator.leadingAnchor, constant: -8),
             
-            // НОВЕ: Індикатор календаря
+            // Індикатор календаря
             calendarIndicator.trailingAnchor.constraint(equalTo: priorityView.leadingAnchor, constant: -8),
             calendarIndicator.centerYAnchor.constraint(equalTo: priorityView.centerYAnchor),
             calendarIndicator.widthAnchor.constraint(equalToConstant: 20),
@@ -236,7 +251,7 @@ class TaskTableViewCell: UITableViewCell {
         
         setupTags(task.tags)
         
-        // НОВЕ: Показуємо індикатор календаря
+        // Показуємо індикатор календаря
         calendarIndicator.isHidden = !task.isInCalendar
         
         if let dueDate = task.dueDate {
