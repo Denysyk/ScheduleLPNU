@@ -248,12 +248,10 @@ class ResultStudentScheduleViewController: UIViewController, UITableViewDelegate
         // Визначення параметрів семестру
         let semesterValue = semester.contains("1") ? "1" : "2"
         
-        // Визначення тривалості семестру
-        var semesterDurationValue = "1" // За замовчуванням "Весь семестр"
-        if semesterDuration.contains("Перша") {
-            semesterDurationValue = "2"
-        } else if semesterDuration.contains("Друга") {
-            semesterDurationValue = "3"
+        // НОВА ЛОГІКА: визначення тривалості семестру
+        var semesterDurationValue = "1" // За замовчуванням "Весь семестр та перша половина"
+        if semesterDuration.contains("друга") || semesterDuration.contains("Друга") {
+            semesterDurationValue = "2" // "Весь семестр та друга половина"
         }
         
         // Формування URL для запиту

@@ -24,8 +24,8 @@ class TeacherScheduleViewController: UIViewController {
     private var isTransitioning = false
     
     // Дані
-    private var selectedSemester = "2 семестр"
-    private var selectedHalf = "Весь семестр"
+    private var selectedSemester = "1 семестр"
+    private var selectedHalf = "перша половина" // ЗМІНЕНО
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -72,7 +72,7 @@ class TeacherScheduleViewController: UIViewController {
         // Navigation
         navigationController?.navigationBar.titleTextAttributes = [
             NSAttributedString.Key.foregroundColor: theme.accentColor,
-            NSAttributedString.Key.font: UIFont.systemFont(ofSize: 17, weight: .semibold)
+            NSAttributedString.Key.font: UIFont.boldSystemFont(ofSize: 18)
         ]
         navigationController?.navigationBar.tintColor = theme.accentColor
         
@@ -81,25 +81,19 @@ class TeacherScheduleViewController: UIViewController {
             titleLabel.textColor = theme.accentColor
         }
         
-        // Labels
-        teacherLabel?.textColor = theme.accentColor
-        semesterLabel?.textColor = theme.accentColor
-        halfLabel?.textColor = theme.accentColor
-        
-        // Text field
-        teacherTextField?.backgroundColor = theme.cardBackgroundColor
+        // Text fields
         teacherTextField?.textColor = theme.textColor
+        teacherTextField?.backgroundColor = theme.cardBackgroundColor
         teacherTextField?.layer.borderColor = theme.separatorColor.cgColor
         
-        // Update placeholder
-        if let placeholder = teacherTextField?.placeholder {
+        if let attributedPlaceholder = teacherTextField?.attributedPlaceholder {
             teacherTextField?.attributedPlaceholder = NSAttributedString(
-                string: placeholder,
+                string: attributedPlaceholder.string,
                 attributes: [NSAttributedString.Key.foregroundColor: theme.secondaryTextColor]
             )
         }
         
-        // Update search icon
+        // Icon tint
         if let leftView = teacherTextField?.leftView {
             for subview in leftView.subviews {
                 if let imageView = subview as? UIImageView {
@@ -134,7 +128,7 @@ class TeacherScheduleViewController: UIViewController {
         // Стиль
         teacherTextField.layer.cornerRadius = 12
         teacherTextField.layer.borderWidth = 1
-        teacherTextField.placeholder = "Введіть ім'я викладача"
+        teacherTextField.placeholder = "Введіть ПІБ викладача повністю"
         teacherTextField.font = UIFont.systemFont(ofSize: 17)
         
         // Іконка пошуку зліва
@@ -308,11 +302,12 @@ class TeacherScheduleViewController: UIViewController {
     
     private func setupCustomTitleView() {
         let title = "РОЗКЛАД ЗАНЯТЬ ДЛЯ ВИКЛАДАЧІВ ЗІ СТУДЕНТАМИ"
-        let labelWidth: CGFloat = 200
+        let labelWidth: CGFloat = 280
         let titleLabel = UILabel(frame: CGRect(x: 0, y: 0, width: labelWidth, height: 50))
         titleLabel.text = title
         titleLabel.font = UIFont.systemFont(ofSize: 17, weight: .semibold)
-        titleLabel.adjustsFontSizeToFitWidth = false
+        titleLabel.adjustsFontSizeToFitWidth = true
+        titleLabel.minimumScaleFactor = 0.5
         titleLabel.numberOfLines = 2
         titleLabel.textAlignment = .center
         titleLabel.lineBreakMode = .byWordWrapping
@@ -360,24 +355,19 @@ class TeacherScheduleViewController: UIViewController {
         let alert = UIAlertController(title: "Оберіть тривалість", message: nil, preferredStyle: .actionSheet)
         alert.view.tintColor = ThemeManager.shared.accentColor
         
-        let fullSemester = UIAlertAction(title: "Весь семестр", style: .default) { [weak self] _ in
-            self?.selectedHalf = "Весь семестр"
-            self?.halfButton.setTitle("Весь семестр", for: .normal)
+        // ЗМІНЕНО: нові опції
+        let firstHalf = UIAlertAction(title: "Весь семестр та перша половина", style: .default) { [weak self] _ in
+            self?.selectedHalf = "Весь семестр та перша половина"
+            self?.halfButton.setTitle("перша половина", for: .normal)
         }
         
-        let firstHalf = UIAlertAction(title: "Перша половина", style: .default) { [weak self] _ in
-            self?.selectedHalf = "Перша половина"
-            self?.halfButton.setTitle("Перша половина", for: .normal)
-        }
-        
-        let secondHalf = UIAlertAction(title: "Друга половина", style: .default) { [weak self] _ in
-            self?.selectedHalf = "Друга половина"
-            self?.halfButton.setTitle("Друга половина", for: .normal)
+        let secondHalf = UIAlertAction(title: "Весь семестр та друга половина", style: .default) { [weak self] _ in
+            self?.selectedHalf = "Весь семестр та друга половина"
+            self?.halfButton.setTitle("друга половина", for: .normal)
         }
         
         let cancel = UIAlertAction(title: "Скасувати", style: .cancel)
         
-        alert.addAction(fullSemester)
         alert.addAction(firstHalf)
         alert.addAction(secondHalf)
         alert.addAction(cancel)

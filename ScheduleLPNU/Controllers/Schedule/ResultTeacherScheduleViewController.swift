@@ -254,11 +254,10 @@ class ResultTeacherScheduleViewController: UIViewController, UITableViewDelegate
         
         let semesterValue = semester.contains("1") ? "1" : "2"
         
-        var semesterDurationValue = "1"
-        if semesterDuration.contains("Перша") {
-            semesterDurationValue = "2"
-        } else if semesterDuration.contains("Друга") {
-            semesterDurationValue = "3"
+        // НОВА ЛОГІКА: визначення тривалості семестру
+        var semesterDurationValue = "1" // За замовчуванням "Весь семестр та перша половина"
+        if semesterDuration.contains("друга") || semesterDuration.contains("Друга") {
+            semesterDurationValue = "2" // "Весь семестр та друга половина"
         }
         
         let baseURL = "https://staff.lpnu.ua/lecturer_schedule"

@@ -24,8 +24,8 @@ class StudentScheduleViewController: UIViewController {
     private var isTransitioning = false
     
     // Дані
-    private var selectedSemester = "2 семестр"
-    private var selectedHalf = "Весь семестр"
+    private var selectedSemester = "1 семестр"
+    private var selectedHalf = "перша половина" // ЗМІНЕНО
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -81,25 +81,19 @@ class StudentScheduleViewController: UIViewController {
             titleLabel.textColor = theme.accentColor
         }
         
-        // Labels
-        groupLabel?.textColor = theme.accentColor
-        semesterLabel?.textColor = theme.accentColor
-        halfLabel?.textColor = theme.accentColor
-        
-        // Text field
-        groupTextField?.backgroundColor = theme.cardBackgroundColor
+        // Text fields
         groupTextField?.textColor = theme.textColor
+        groupTextField?.backgroundColor = theme.cardBackgroundColor
         groupTextField?.layer.borderColor = theme.separatorColor.cgColor
         
-        // Update placeholder
-        if let placeholder = groupTextField?.placeholder {
+        if let attributedPlaceholder = groupTextField?.attributedPlaceholder {
             groupTextField?.attributedPlaceholder = NSAttributedString(
-                string: placeholder,
+                string: attributedPlaceholder.string,
                 attributes: [NSAttributedString.Key.foregroundColor: theme.secondaryTextColor]
             )
         }
         
-        // Update search icon
+        // Icon tint
         if let leftView = groupTextField?.leftView {
             for subview in leftView.subviews {
                 if let imageView = subview as? UIImageView {
@@ -308,11 +302,12 @@ class StudentScheduleViewController: UIViewController {
     
     private func setupCustomTitleView() {
         let title = "РОЗКЛАД ЗАНЯТЬ ДЛЯ СТУДЕНТІВ"
-        let labelWidth: CGFloat = 200
+        let labelWidth: CGFloat = 280
         let titleLabel = UILabel(frame: CGRect(x: 0, y: 0, width: labelWidth, height: 50))
         titleLabel.text = title
         titleLabel.font = UIFont.boldSystemFont(ofSize: 18)
-        titleLabel.adjustsFontSizeToFitWidth = false
+        titleLabel.adjustsFontSizeToFitWidth = true
+        titleLabel.minimumScaleFactor = 0.5
         titleLabel.numberOfLines = 2
         titleLabel.textAlignment = .center
         titleLabel.lineBreakMode = .byWordWrapping
@@ -358,24 +353,19 @@ class StudentScheduleViewController: UIViewController {
     @objc private func halfButtonTapped() {
         let alert = UIAlertController(title: "ПОЛОВИНА", message: nil, preferredStyle: .actionSheet)
         
-        let fullSemester = UIAlertAction(title: "Весь семестр", style: .default) { [weak self] _ in
-            self?.selectedHalf = "Весь семестр"
-            self?.halfButton.setTitle("Весь семестр", for: .normal)
+        // ЗМІНЕНО: нові опції
+        let firstHalf = UIAlertAction(title: "Весь семестр та перша половина", style: .default) { [weak self] _ in
+            self?.selectedHalf = "Весь семестр та перша половина"
+            self?.halfButton.setTitle("перша половина", for: .normal)
         }
         
-        let firstHalf = UIAlertAction(title: "Перша половина", style: .default) { [weak self] _ in
-            self?.selectedHalf = "Перша половина"
-            self?.halfButton.setTitle("Перша половина", for: .normal)
-        }
-        
-        let secondHalf = UIAlertAction(title: "Друга половина", style: .default) { [weak self] _ in
-            self?.selectedHalf = "Друга половина"
-            self?.halfButton.setTitle("Друга половина", for: .normal)
+        let secondHalf = UIAlertAction(title: "Весь семестр та друга половина", style: .default) { [weak self] _ in
+            self?.selectedHalf = "Весь семестр та друга половина"
+            self?.halfButton.setTitle("друга половина", for: .normal)
         }
         
         let cancel = UIAlertAction(title: "Скасувати", style: .cancel)
         
-        alert.addAction(fullSemester)
         alert.addAction(firstHalf)
         alert.addAction(secondHalf)
         alert.addAction(cancel)

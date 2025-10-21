@@ -190,11 +190,12 @@ class TeacherExamScheduleViewController: UIViewController {
     
     private func setupCustomTitleView() {
         let title = "РОЗКЛАД ЕКЗАМЕНІВ ДЛЯ ВИКЛАДАЧІВ"
-        let labelWidth: CGFloat = 200
+        let labelWidth: CGFloat = 280
         let titleLabel = UILabel(frame: CGRect(x: 0, y: 0, width: labelWidth, height: 50))
         titleLabel.text = title
         titleLabel.font = UIFont.systemFont(ofSize: 17, weight: .semibold)
-        titleLabel.adjustsFontSizeToFitWidth = false
+        titleLabel.adjustsFontSizeToFitWidth = true
+        titleLabel.minimumScaleFactor = 0.5
         titleLabel.numberOfLines = 2
         titleLabel.textAlignment = .center
         titleLabel.lineBreakMode = .byWordWrapping
