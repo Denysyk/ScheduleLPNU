@@ -1,6 +1,6 @@
 import UIKit
 
-class StatisticsViewController: UIViewController {
+class StatisticsViewController: BaseFullScreenViewController {
     
     private let scrollView = UIScrollView()
     private let contentView = UIView()

@@ -1,6 +1,6 @@
 import UIKit
 
-class GradeCalculatorViewController: UIViewController {
+class GradeCalculatorViewController: BaseFullScreenViewController {
     
     // UI елементи (програмно)
     private var scrollView: UIScrollView!

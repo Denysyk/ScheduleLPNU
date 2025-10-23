@@ -7,7 +7,7 @@
 
 import UIKit
 
-class AddTaskViewController: UIViewController {
+class AddTaskViewController: BaseFullScreenViewController {
     
     // UI елементи
     private var scrollView: UIScrollView!
@@ -465,22 +465,31 @@ class AddTaskViewController: UIViewController {
     }
     
     @objc private func dueDateButtonTapped() {
-        let alert = UIAlertController(title: "Виберіть дату виконання", message: nil, preferredStyle: .actionSheet)
+        let datePickerVC = UIViewController()
+        datePickerVC.preferredContentSize = CGSize(width: 320, height: 300)
         
         let datePicker = UIDatePicker()
         datePicker.datePickerMode = .dateAndTime
         datePicker.preferredDatePickerStyle = .wheels
         datePicker.locale = Locale(identifier: "uk_UA")
         datePicker.minimumDate = Date()
+        datePicker.translatesAutoresizingMaskIntoConstraints = false
         
         if let date = selectedDate {
             datePicker.date = date
         }
         
-        let pickerContainer = UIViewController()
-        pickerContainer.preferredContentSize = CGSize(width: 0, height: 250)
-        pickerContainer.view = datePicker
-        alert.setValue(pickerContainer, forKey: "contentViewController")
+        datePickerVC.view.addSubview(datePicker)
+        
+        NSLayoutConstraint.activate([
+            datePicker.topAnchor.constraint(equalTo: datePickerVC.view.topAnchor),
+            datePicker.leadingAnchor.constraint(equalTo: datePickerVC.view.leadingAnchor),
+            datePicker.trailingAnchor.constraint(equalTo: datePickerVC.view.trailingAnchor),
+            datePicker.bottomAnchor.constraint(equalTo: datePickerVC.view.bottomAnchor)
+        ])
+        
+        let alert = UIAlertController(title: "Виберіть дату виконання", message: nil, preferredStyle: .actionSheet)
+        alert.setValue(datePickerVC, forKey: "contentViewController")
         
         alert.addAction(UIAlertAction(title: "Підтвердити", style: .default) { [weak self] _ in
             self?.selectedDate = datePicker.date
@@ -489,16 +498,10 @@ class AddTaskViewController: UIViewController {
         
         alert.addAction(UIAlertAction(title: "Видалити дату", style: .destructive) { [weak self] _ in
             self?.selectedDate = nil
-            self?.shouldAddToCalendar = false
             self?.updateButtonTitles()
         })
         
         alert.addAction(UIAlertAction(title: "Скасувати", style: .cancel))
-        
-        if let popover = alert.popoverPresentationController {
-            popover.sourceView = dueDateButton
-            popover.sourceRect = dueDateButton.bounds
-        }
         
         present(alert, animated: true)
     }

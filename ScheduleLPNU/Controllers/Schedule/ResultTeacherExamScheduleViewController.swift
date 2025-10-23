@@ -2,7 +2,7 @@ import UIKit
 import SwiftSoup
 import SystemConfiguration
 
-class ResultTeacherExamScheduleViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
+class ResultTeacherExamScheduleViewController: BaseFullScreenViewController, UITableViewDelegate, UITableViewDataSource {
 
     @IBOutlet weak var tableView: UITableView!
     

@@ -2,7 +2,7 @@ import UIKit
 import SwiftSoup
 import SystemConfiguration
 
-class ResultElectiveScheduleViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
+class ResultElectiveScheduleViewController: BaseFullScreenViewController, UITableViewDelegate, UITableViewDataSource {
 
     @IBOutlet weak var tableView: UITableView!
     

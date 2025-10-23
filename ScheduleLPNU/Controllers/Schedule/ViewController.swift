@@ -7,7 +7,7 @@
 
 import UIKit
 
-class ViewController: UIViewController {
+class ViewController: BaseFullScreenViewController {
     
     @IBOutlet weak var SearchButton: UIButton!
     @IBOutlet weak var tableView: UITableView!

@@ -1,6 +1,6 @@
 import UIKit
 
-class AddSubjectGradeViewController: UIViewController {
+class AddSubjectGradeViewController: BaseFullScreenViewController {
     
     // UI елементи (програмно)
     private var scrollView: UIScrollView!

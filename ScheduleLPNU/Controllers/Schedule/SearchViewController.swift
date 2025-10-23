@@ -7,7 +7,7 @@
 
 import UIKit
 
-class SearchViewController: UIViewController {
+class SearchViewController: BaseFullScreenViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()

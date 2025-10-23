@@ -7,7 +7,7 @@
 
 import UIKit
 
-class TeacherScheduleViewController: UIViewController {
+class TeacherScheduleViewController: BaseFullScreenViewController {
     
     // UI елементи
     private var teacherTextField: UITextField!

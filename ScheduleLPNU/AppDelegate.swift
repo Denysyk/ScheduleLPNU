@@ -16,10 +16,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         // Застосовуємо тему при запуску додатку
         ThemeManager.shared.applyTheme()
+        requestNotificationPermission()
         
         return true
     }
-
+    
+    private func requestNotificationPermission() {
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { _, _ in }
+    }
     // MARK: UISceneSession Lifecycle
 
     func application(_ application: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession, options: UIScene.ConnectionOptions) -> UISceneConfiguration {

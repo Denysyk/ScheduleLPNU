@@ -7,7 +7,7 @@
 
 import UIKit
 
-class ElectiveScheduleViewController: UIViewController {
+class ElectiveScheduleViewController: BaseFullScreenViewController {
     
     // UI елементи
     private var groupTextField: UITextField!

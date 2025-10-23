@@ -1,6 +1,6 @@
 import UIKit
 
-class TaskViewController: UIViewController {
+class TaskViewController: BaseFullScreenViewController {
     
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var addButton: UIButton!
@@ -627,41 +627,69 @@ class TaskViewController: UIViewController {
     }
     
     // MARK: - Calendar Integration
-    
+
     private func addTaskToCalendar(task: Task) {
+        print("🔵 Starting addTaskToCalendar for task: \(task.title)")
+        
         let status = CalendarManager.shared.checkCalendarAuthorizationStatus()
+        print("🔵 Current calendar status: \(status.rawValue)")
         
         switch status {
         case .notDetermined:
+            print("🔵 Status is notDetermined - requesting access")
+            // ВАЖЛИВО: Запитуємо дозвіл ПЕРЕД спробою додати
             CalendarManager.shared.requestCalendarAccess { [weak self] granted, error in
+                print("🔵 Request result - granted: \(granted), error: \(String(describing: error))")
+                
                 if granted {
+                    // Тільки після отримання дозволу додаємо в календар
                     self?.performAddToCalendar(task: task)
                 } else {
                     self?.showCalendarPermissionAlert()
                 }
             }
-        case .authorized, .fullAccess:
+            
+        case .authorized:
+            print("🔵 Status is authorized (iOS <17)")
             performAddToCalendar(task: task)
-        case .denied, .restricted, .writeOnly:
+            
+        case .fullAccess:
+            print("🔵 Status is fullAccess (iOS 17+)")
+            performAddToCalendar(task: task)
+            
+        case .writeOnly:
+            print("🔵 Status is writeOnly (iOS 17+)")
+            performAddToCalendar(task: task)
+            
+        case .denied, .restricted:
+            print("🔵 Status is denied/restricted")
             showCalendarPermissionAlert()
+            
         @unknown default:
+            print("🔵 Unknown status")
             showCalendarPermissionAlert()
         }
     }
-    
+
     private func performAddToCalendar(task: Task) {
+        print("🔵 Performing add to calendar for task: \(task.title)")
+        
         TaskManager.shared.addTaskToCalendar(taskId: task.id) { [weak self] success, error in
             DispatchQueue.main.async {
                 if success {
+                    print("✅ Successfully added to calendar")
                     self?.showToast(message: "✅ Додано в календар")
                     self?.loadTasks()
                 } else {
-                    self?.showToast(message: "❌ Помилка: \(error ?? "Невідома помилка")")
+                    print("❌ Failed to add to calendar: \(error ?? "Unknown error")")
+                    
+                    let errorMessage = error ?? "Невідома помилка"
+                    self?.showToast(message: "❌ Помилка: \(errorMessage)")
                 }
             }
         }
     }
-
+    
     private func removeTaskFromCalendar(task: Task) {
         TaskManager.shared.removeTaskFromCalendar(taskId: task.id) { [weak self] success, error in
             DispatchQueue.main.async {

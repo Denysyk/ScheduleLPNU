@@ -9,7 +9,7 @@ import UIKit
 import SwiftSoup
 import SystemConfiguration
 
-class ResultExternalPhdStudentScheduleViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
+class ResultExternalPhdStudentScheduleViewController: BaseFullScreenViewController, UITableViewDelegate, UITableViewDataSource {
 
     @IBOutlet weak var tableView: UITableView!
        

@@ -333,6 +333,11 @@
 				DEVELOPMENT_TEAM = 2SN4T758G8;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ScheduleLPNU/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "";
+				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "ScheduleLPNU потребує повний доступ до календаря для синхронізації ваших завдань";
+				INFOPLIST_KEY_NSCalendarsUsageDescription = "ScheduleLPNU потребує доступ до календаря";
+				INFOPLIST_KEY_NSCalendarsWriteOnlyAccessUsageDescription = "ScheduleLPNU потребує доступ для додавання завдань в календар";
+				INFOPLIST_KEY_NSRemindersUsageDescription = "ScheduleLPNU потребує доступ до нагадувань";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
@@ -363,6 +368,11 @@
 				DEVELOPMENT_TEAM = 2SN4T758G8;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ScheduleLPNU/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "";
+				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "ScheduleLPNU потребує повний доступ до календаря для синхронізації ваших завдань";
+				INFOPLIST_KEY_NSCalendarsUsageDescription = "ScheduleLPNU потребує доступ до календаря";
+				INFOPLIST_KEY_NSCalendarsWriteOnlyAccessUsageDescription = "ScheduleLPNU потребує доступ для додавання завдань в календар";
+				INFOPLIST_KEY_NSRemindersUsageDescription = "ScheduleLPNU потребує доступ до нагадувань";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;

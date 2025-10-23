@@ -7,7 +7,7 @@
 
 import UIKit
 
-class ExternalStudentScheduleViewController: UIViewController {
+class ExternalStudentScheduleViewController: BaseFullScreenViewController {
     
     // UI елементи
     private var groupTextField: UITextField!

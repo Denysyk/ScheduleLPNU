@@ -1,7 +1,7 @@
 import UIKit
 import PassKit
 
-class SettingsViewController: UIViewController, PKPaymentAuthorizationViewControllerDelegate {
+class SettingsViewController: BaseFullScreenViewController, PKPaymentAuthorizationViewControllerDelegate {
     
     private let scrollView = UIScrollView()
     private let contentView = UIView()
