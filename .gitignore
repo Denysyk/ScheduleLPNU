@@ -12,6 +12,8 @@ DerivedData/
 
 # CocoaPods
 Pods/
+Podfile
+Podfile.lock
 *.xcworkspace
 
 # Swift Package Manager
