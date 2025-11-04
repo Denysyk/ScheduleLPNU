@@ -674,7 +674,7 @@
                         <viewLayoutGuide key="safeArea" id="N85-rj-gAf"/>
                         <color key="tintColor" red="0.27450980390000002" green="0.40000000000000002" blue="0.40000000000000002" alpha="1" colorSpace="calibratedRGB"/>
                     </view>
-                    <navigationItem key="navigationItem" style="editor" id="pEa-uX-6iX"/>
+                    <navigationItem key="navigationItem" id="pEa-uX-6iX"/>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="x40-wL-FzF" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
@@ -710,7 +710,7 @@
                         <viewLayoutGuide key="safeArea" id="9Bj-Ho-Xb6"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                     </view>
-                    <navigationItem key="navigationItem" style="editor" id="TNe-zt-zDv"/>
+                    <navigationItem key="navigationItem" id="TNe-zt-zDv"/>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="9GT-Po-dfj" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
@@ -726,7 +726,7 @@
                         <viewLayoutGuide key="safeArea" id="qbO-sf-rdk"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                     </view>
-                    <navigationItem key="navigationItem" style="editor" id="Ms4-7j-1nM"/>
+                    <navigationItem key="navigationItem" id="Ms4-7j-1nM"/>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="kqF-P9-bKt" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
@@ -742,7 +742,7 @@
                         <viewLayoutGuide key="safeArea" id="s6c-UX-5CO"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                     </view>
-                    <navigationItem key="navigationItem" style="editor" id="F1K-cf-WLA"/>
+                    <navigationItem key="navigationItem" id="F1K-cf-WLA"/>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="R59-cg-gmi" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>

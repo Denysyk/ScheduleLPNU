@@ -28,11 +28,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		44EC5D52CACA759AA949A5B6 /* Pods-ScheduleLPNU.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ScheduleLPNU.debug.xcconfig"; path = "Target Support Files/Pods-ScheduleLPNU/Pods-ScheduleLPNU.debug.xcconfig"; sourceTree = "<group>"; };
 		89A3FC722D9563EB000C61A7 /* ScheduleLPNU.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ScheduleLPNU.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		89A3FC882D9563ED000C61A7 /* ScheduleLPNUTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ScheduleLPNUTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		89A3FC922D9563ED000C61A7 /* ScheduleLPNUUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ScheduleLPNUUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		B784884CBECA99F0CD7D151A /* Pods-ScheduleLPNU.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ScheduleLPNU.release.xcconfig"; path = "Target Support Files/Pods-ScheduleLPNU/Pods-ScheduleLPNU.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -99,7 +97,6 @@
 				89A3FC8B2D9563ED000C61A7 /* ScheduleLPNUTests */,
 				89A3FC952D9563ED000C61A7 /* ScheduleLPNUUITests */,
 				89A3FC732D9563EB000C61A7 /* Products */,
-				B04B8A9BD1C5F43F6BFD85AC /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -113,15 +110,6 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		B04B8A9BD1C5F43F6BFD85AC /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				44EC5D52CACA759AA949A5B6 /* Pods-ScheduleLPNU.debug.xcconfig */,
-				B784884CBECA99F0CD7D151A /* Pods-ScheduleLPNU.release.xcconfig */,
-			);
-			path = Pods;
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -129,7 +117,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 89A3FC9B2D9563ED000C61A7 /* Build configuration list for PBXNativeTarget "ScheduleLPNU" */;
 			buildPhases = (
-				2801410A6CEB0DD1B16DE4DD /* [CP] Check Pods Manifest.lock */,
 				89A3FC6E2D9563EB000C61A7 /* Sources */,
 				89A3FC6F2D9563EB000C61A7 /* Frameworks */,
 				89A3FC702D9563EB000C61A7 /* Resources */,
@@ -260,28 +247,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		2801410A6CEB0DD1B16DE4DD /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-ScheduleLPNU-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
+
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -324,7 +290,6 @@
 /* Begin XCBuildConfiguration section */
 		89A3FC9C2D9563ED000C61A7 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 44EC5D52CACA759AA949A5B6 /* Pods-ScheduleLPNU.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -359,7 +324,6 @@
 		};
 		89A3FC9D2D9563ED000C61A7 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = B784884CBECA99F0CD7D151A /* Pods-ScheduleLPNU.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
