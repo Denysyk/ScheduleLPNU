@@ -7,6 +7,7 @@ class CalendarManager {
     private let eventStore = EKEventStore()
     private let userDefaults = UserDefaults.standard
     private let calendarTasksKey = "CalendarTaskIds"
+    private let calendarPermissionRequestedKey = "CalendarPermissionRequested"
     
     private init() {}
     
@@ -34,6 +35,25 @@ class CalendarManager {
         } else {
             return EKEventStore.authorizationStatus(for: .event)
         }
+    }
+    // MARK: - Permission Management
+
+    /// Перевіряє, чи потрібно запитувати дозвіл при першому запуску
+    func shouldRequestPermissionOnFirstLaunch() -> Bool {
+        // Якщо дозвіл вже визначено (granted або denied), не запитуємо
+        let status = checkCalendarAuthorizationStatus()
+        if status != .notDetermined {
+            return false
+        }
+        
+        // Якщо ми вже запитували раніше, не запитуємо знову
+        let wasRequested = userDefaults.bool(forKey: calendarPermissionRequestedKey)
+        return !wasRequested
+    }
+
+    /// Позначає що дозвіл був запитаний
+    func markPermissionAsRequested() {
+        userDefaults.set(true, forKey: calendarPermissionRequestedKey)
     }
     
     // Додати завдання в календар
