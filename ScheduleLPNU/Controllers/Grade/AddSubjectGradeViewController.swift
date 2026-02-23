@@ -426,7 +426,7 @@ class AddSubjectGradeViewController: BaseFullScreenViewController {
         }
         
         guard let creditsText = creditsTextField.text, let credits = Int(creditsText), credits >= 1 && credits <= 9 else {
-            showAlert(title: "Помилка", message: "Введіть коректну кількість кредитів (1-8)")
+            showAlert(title: "Помилка", message: "Введіть коректну кількість кредитів (1-9)")
             return
         }
         

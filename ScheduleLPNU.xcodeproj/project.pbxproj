@@ -62,6 +62,11 @@
 			path = ScheduleLPNUUITests;
 			sourceTree = "<group>";
 		};
+		89CDCA712EBB709C00975E0F /* Schedule LPNU */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "Schedule LPNU";
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -96,6 +101,7 @@
 				89A3FC742D9563EB000C61A7 /* ScheduleLPNU */,
 				89A3FC8B2D9563ED000C61A7 /* ScheduleLPNUTests */,
 				89A3FC952D9563ED000C61A7 /* ScheduleLPNUUITests */,
+				89CDCA712EBB709C00975E0F /* Schedule LPNU */,
 				89A3FC732D9563EB000C61A7 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -182,7 +188,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1620;
+				LastSwiftUpdateCheck = 2600;
 				LastUpgradeCheck = 1620;
 				TargetAttributes = {
 					89A3FC712D9563EB000C61A7 = {
@@ -245,10 +251,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
-
-/* Begin PBXShellScriptBuildPhase section */
-
-/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		89A3FC6E2D9563EB000C61A7 /* Sources */ = {

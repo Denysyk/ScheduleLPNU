@@ -70,7 +70,7 @@ class SubjectGradeTableViewCell: UITableViewCell {
         subjectNameLabel = UILabel()
         subjectNameLabel.font = .systemFont(ofSize: 16, weight: .semibold)
         subjectNameLabel.numberOfLines = 2
-        subjectNameLabel.lineBreakMode = .byWordWrapping
+        subjectNameLabel.lineBreakMode = .byTruncatingTail  // Змінено з .byWordWrapping на .byTruncatingTail
         containerView.addSubview(subjectNameLabel)
         
         // Grade

@@ -2,12 +2,12 @@
 //  ExternalPhdStudentScheduleViewController.swift
 //  ScheduleLPNU
 //
-//  Created by Denys Brativnyk on 25.05.2025.
+//  Created by Denys Brativnyk on 01.05.2025.
 //
 
 import UIKit
 
-class ExternalPhdStudentScheduleViewController: BaseFullScreenViewController {
+class ExternalPhdStudentScheduleViewController: BaseFullScreenViewController, UITextFieldDelegate {
     
     // UI елементи
     private var groupTextField: UITextField!
@@ -30,6 +30,7 @@ class ExternalPhdStudentScheduleViewController: BaseFullScreenViewController {
         setupConstraints()
         setupCustomTitleView()
         setupThemeObserver()
+        setupTapGesture()
         applyTheme()
     }
     
@@ -58,6 +59,17 @@ class ExternalPhdStudentScheduleViewController: BaseFullScreenViewController {
     
     @objc private func themeDidChange() {
         applyTheme()
+    }
+    
+    // MARK: - Tap Gesture для закриття клавіатури
+    private func setupTapGesture() {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tapGesture.cancelsTouchesInView = false
+        view.addGestureRecognizer(tapGesture)
+    }
+    
+    @objc private func dismissKeyboard() {
+        view.endEditing(true)
     }
     
     private func applyTheme() {
@@ -128,6 +140,11 @@ class ExternalPhdStudentScheduleViewController: BaseFullScreenViewController {
         groupTextField.layer.borderWidth = 1
         groupTextField.placeholder = "Введіть назву групи"
         groupTextField.font = UIFont.systemFont(ofSize: 17)
+        
+        // ВИПРАВЛЕННЯ: Додано textAlignment
+        groupTextField.textAlignment = .left
+        groupTextField.delegate = self
+        groupTextField.returnKeyType = .done
         
         // Іконка пошуку зліва
         let searchIcon = UIImageView(frame: CGRect(x: 12, y: 7, width: 20, height: 20))
@@ -262,10 +279,18 @@ class ExternalPhdStudentScheduleViewController: BaseFullScreenViewController {
         self.navigationItem.titleView = titleLabel
     }
     
+    // MARK: - UITextFieldDelegate
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
+    }
+    
     // MARK: - Дії кнопок
     @objc private func semesterButtonTapped() {
-        let alert = UIAlertController(title: "Оберіть семестр", message: nil, preferredStyle: .actionSheet)
-        alert.view.tintColor = ThemeManager.shared.accentColor
+        // ВИПРАВЛЕННЯ: Закриваємо клавіатуру перед показом alert
+        view.endEditing(true)
+        
+        let alert = UIAlertController(title: "СЕМЕСТР", message: nil, preferredStyle: .actionSheet)
         
         let semester1 = UIAlertAction(title: "1 семестр", style: .default) { [weak self] _ in
             self?.selectedSemester = "1 семестр"
@@ -283,6 +308,7 @@ class ExternalPhdStudentScheduleViewController: BaseFullScreenViewController {
         alert.addAction(semester2)
         alert.addAction(cancel)
         
+        // Для iPad
         if let popover = alert.popoverPresentationController {
             popover.sourceView = semesterButton
             popover.sourceRect = semesterButton.bounds
@@ -293,6 +319,9 @@ class ExternalPhdStudentScheduleViewController: BaseFullScreenViewController {
     
     @objc private func downloadButtonTapped() {
         guard !isTransitioning else { return }
+        
+        // Закриваємо клавіатуру
+        view.endEditing(true)
         
         // Анімація кнопки
         UIView.animate(withDuration: 0.1, animations: {
@@ -322,7 +351,7 @@ class ExternalPhdStudentScheduleViewController: BaseFullScreenViewController {
     
     private func navigateToResults() {
         // Якщо у вас є segue:
-        // performSegue(withIdentifier: "showPhdStudentExternalResult", sender: self)
+        // performSegue(withIdentifier: "showExternalPhdScheduleResult", sender: self)
         
         // Або програмна навігація:
         let storyboard = UIStoryboard(name: "Main", bundle: nil)

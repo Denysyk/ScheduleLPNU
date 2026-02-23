@@ -7,7 +7,7 @@
 
 import UIKit
 
-class TeacherScheduleViewController: BaseFullScreenViewController {
+class TeacherScheduleViewController: BaseFullScreenViewController, UITextFieldDelegate {
     
     // UI елементи
     private var teacherTextField: UITextField!
@@ -25,7 +25,7 @@ class TeacherScheduleViewController: BaseFullScreenViewController {
     
     // Дані
     private var selectedSemester = "1 семестр"
-    private var selectedHalf = "перша половина" // ЗМІНЕНО
+    private var selectedHalf = "перша половина"
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -33,6 +33,7 @@ class TeacherScheduleViewController: BaseFullScreenViewController {
         setupConstraints()
         setupCustomTitleView()
         setupThemeObserver()
+        setupTapGesture()
         applyTheme()
     }
     
@@ -63,6 +64,17 @@ class TeacherScheduleViewController: BaseFullScreenViewController {
         applyTheme()
     }
     
+    // MARK: - Tap Gesture для закриття клавіатури
+    private func setupTapGesture() {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tapGesture.cancelsTouchesInView = false
+        view.addGestureRecognizer(tapGesture)
+    }
+    
+    @objc private func dismissKeyboard() {
+        view.endEditing(true)
+    }
+    
     private func applyTheme() {
         let theme = ThemeManager.shared
         
@@ -81,19 +93,25 @@ class TeacherScheduleViewController: BaseFullScreenViewController {
             titleLabel.textColor = theme.accentColor
         }
         
-        // Text fields
-        teacherTextField?.textColor = theme.textColor
+        // Labels
+        teacherLabel?.textColor = theme.accentColor
+        semesterLabel?.textColor = theme.accentColor
+        halfLabel?.textColor = theme.accentColor
+        
+        // Text field
         teacherTextField?.backgroundColor = theme.cardBackgroundColor
+        teacherTextField?.textColor = theme.textColor
         teacherTextField?.layer.borderColor = theme.separatorColor.cgColor
         
-        if let attributedPlaceholder = teacherTextField?.attributedPlaceholder {
+        // Update placeholder
+        if let placeholder = teacherTextField?.placeholder {
             teacherTextField?.attributedPlaceholder = NSAttributedString(
-                string: attributedPlaceholder.string,
+                string: placeholder,
                 attributes: [NSAttributedString.Key.foregroundColor: theme.secondaryTextColor]
             )
         }
         
-        // Icon tint
+        // Update search icon
         if let leftView = teacherTextField?.leftView {
             for subview in leftView.subviews {
                 if let imageView = subview as? UIImageView {
@@ -130,6 +148,11 @@ class TeacherScheduleViewController: BaseFullScreenViewController {
         teacherTextField.layer.borderWidth = 1
         teacherTextField.placeholder = "Введіть ПІБ викладача повністю"
         teacherTextField.font = UIFont.systemFont(ofSize: 17)
+        
+        // ВИПРАВЛЕННЯ: Додано textAlignment
+        teacherTextField.textAlignment = .left
+        teacherTextField.delegate = self
+        teacherTextField.returnKeyType = .done
         
         // Іконка пошуку зліва
         let searchIcon = UIImageView(frame: CGRect(x: 12, y: 7, width: 20, height: 20))
@@ -305,7 +328,7 @@ class TeacherScheduleViewController: BaseFullScreenViewController {
         let labelWidth: CGFloat = 280
         let titleLabel = UILabel(frame: CGRect(x: 0, y: 0, width: labelWidth, height: 50))
         titleLabel.text = title
-        titleLabel.font = UIFont.systemFont(ofSize: 17, weight: .semibold)
+        titleLabel.font = UIFont.boldSystemFont(ofSize: 18)
         titleLabel.adjustsFontSizeToFitWidth = true
         titleLabel.minimumScaleFactor = 0.5
         titleLabel.numberOfLines = 2
@@ -321,10 +344,18 @@ class TeacherScheduleViewController: BaseFullScreenViewController {
         self.navigationItem.titleView = titleLabel
     }
     
+    // MARK: - UITextFieldDelegate
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
+    }
+    
     // MARK: - Дії кнопок
     @objc private func semesterButtonTapped() {
-        let alert = UIAlertController(title: "Оберіть семестр", message: nil, preferredStyle: .actionSheet)
-        alert.view.tintColor = ThemeManager.shared.accentColor
+        // ВИПРАВЛЕННЯ: Закриваємо клавіатуру перед показом alert
+        view.endEditing(true)
+        
+        let alert = UIAlertController(title: "СЕМЕСТР", message: nil, preferredStyle: .actionSheet)
         
         let semester1 = UIAlertAction(title: "1 семестр", style: .default) { [weak self] _ in
             self?.selectedSemester = "1 семестр"
@@ -352,10 +383,11 @@ class TeacherScheduleViewController: BaseFullScreenViewController {
     }
     
     @objc private func halfButtonTapped() {
-        let alert = UIAlertController(title: "Оберіть тривалість", message: nil, preferredStyle: .actionSheet)
-        alert.view.tintColor = ThemeManager.shared.accentColor
+        // ВИПРАВЛЕННЯ: Закриваємо клавіатуру перед показом alert
+        view.endEditing(true)
         
-        // ЗМІНЕНО: нові опції
+        let alert = UIAlertController(title: "ПОЛОВИНА", message: nil, preferredStyle: .actionSheet)
+        
         let firstHalf = UIAlertAction(title: "Весь семестр та перша половина", style: .default) { [weak self] _ in
             self?.selectedHalf = "Весь семестр та перша половина"
             self?.halfButton.setTitle("перша половина", for: .normal)
@@ -383,6 +415,9 @@ class TeacherScheduleViewController: BaseFullScreenViewController {
     
     @objc private func downloadButtonTapped() {
         guard !isTransitioning else { return }
+        
+        // Закриваємо клавіатуру
+        view.endEditing(true)
         
         // Анімація кнопки
         UIView.animate(withDuration: 0.1, animations: {

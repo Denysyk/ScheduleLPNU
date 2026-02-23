@@ -2,12 +2,12 @@
 //  ExternalTeacherScheduleViewController.swift
 //  ScheduleLPNU
 //
-//  Created by Denys Brativnyk on 25.05.2025.
+//  Created by Denys Brativnyk on 01.05.2025.
 //
 
 import UIKit
 
-class ExternalTeacherScheduleViewController: BaseFullScreenViewController {
+class ExternalTeacherScheduleViewController: BaseFullScreenViewController, UITextFieldDelegate {
     
     // UI елементи
     private var teacherTextField: UITextField!
@@ -30,6 +30,7 @@ class ExternalTeacherScheduleViewController: BaseFullScreenViewController {
         setupConstraints()
         setupCustomTitleView()
         setupThemeObserver()
+        setupTapGesture()
         applyTheme()
     }
     
@@ -58,6 +59,17 @@ class ExternalTeacherScheduleViewController: BaseFullScreenViewController {
     
     @objc private func themeDidChange() {
         applyTheme()
+    }
+    
+    // MARK: - Tap Gesture для закриття клавіатури
+    private func setupTapGesture() {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tapGesture.cancelsTouchesInView = false
+        view.addGestureRecognizer(tapGesture)
+    }
+    
+    @objc private func dismissKeyboard() {
+        view.endEditing(true)
     }
     
     private func applyTheme() {
@@ -128,6 +140,11 @@ class ExternalTeacherScheduleViewController: BaseFullScreenViewController {
         teacherTextField.layer.borderWidth = 1
         teacherTextField.placeholder = "Введіть ім'я викладача"
         teacherTextField.font = UIFont.systemFont(ofSize: 17)
+        
+        // ВИПРАВЛЕННЯ: Додано textAlignment
+        teacherTextField.textAlignment = .left
+        teacherTextField.delegate = self
+        teacherTextField.returnKeyType = .done
         
         // Іконка пошуку зліва
         let searchIcon = UIImageView(frame: CGRect(x: 12, y: 7, width: 20, height: 20))
@@ -243,7 +260,7 @@ class ExternalTeacherScheduleViewController: BaseFullScreenViewController {
     
     private func setupCustomTitleView() {
         let title = "РОЗКЛАД ЗАНЯТЬ ДЛЯ ВИКЛАДАЧІВ ЗІ СТУДЕНТАМИ-ЗАОЧНИКАМИ"
-        let labelWidth: CGFloat = 350
+        let labelWidth: CGFloat = 280
         let titleLabel = UILabel(frame: CGRect(x: 0, y: 0, width: labelWidth, height: 50))
         titleLabel.text = title
         titleLabel.font = UIFont.systemFont(ofSize: 17, weight: .semibold)
@@ -262,10 +279,18 @@ class ExternalTeacherScheduleViewController: BaseFullScreenViewController {
         self.navigationItem.titleView = titleLabel
     }
     
+    // MARK: - UITextFieldDelegate
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
+    }
+    
     // MARK: - Дії кнопок
     @objc private func semesterButtonTapped() {
-        let alert = UIAlertController(title: "Оберіть семестр", message: nil, preferredStyle: .actionSheet)
-        alert.view.tintColor = ThemeManager.shared.accentColor
+        // ВИПРАВЛЕННЯ: Закриваємо клавіатуру перед показом alert
+        view.endEditing(true)
+        
+        let alert = UIAlertController(title: "СЕМЕСТР", message: nil, preferredStyle: .actionSheet)
         
         let semester1 = UIAlertAction(title: "1 семестр", style: .default) { [weak self] _ in
             self?.selectedSemester = "1 семестр"
@@ -283,6 +308,7 @@ class ExternalTeacherScheduleViewController: BaseFullScreenViewController {
         alert.addAction(semester2)
         alert.addAction(cancel)
         
+        // Для iPad
         if let popover = alert.popoverPresentationController {
             popover.sourceView = semesterButton
             popover.sourceRect = semesterButton.bounds
@@ -293,6 +319,9 @@ class ExternalTeacherScheduleViewController: BaseFullScreenViewController {
     
     @objc private func downloadButtonTapped() {
         guard !isTransitioning else { return }
+        
+        // Закриваємо клавіатуру
+        view.endEditing(true)
         
         // Анімація кнопки
         UIView.animate(withDuration: 0.1, animations: {
@@ -310,7 +339,7 @@ class ExternalTeacherScheduleViewController: BaseFullScreenViewController {
         guard !isTransitioning else { return }
         
         guard let teacherText = teacherTextField.text, !teacherText.isEmpty else {
-            showAlert(title: "Помилка", message: "Введіть ПІБ викладача повністю")
+            showAlert(title: "Помилка", message: "Введіть ім'я викладача")
             return
         }
         
@@ -322,7 +351,7 @@ class ExternalTeacherScheduleViewController: BaseFullScreenViewController {
     
     private func navigateToResults() {
         // Якщо у вас є segue:
-        // performSegue(withIdentifier: "showTeacherExternalResult", sender: self)
+        // performSegue(withIdentifier: "showExternalTeacherScheduleResult", sender: self)
         
         // Або програмна навігація:
         let storyboard = UIStoryboard(name: "Main", bundle: nil)

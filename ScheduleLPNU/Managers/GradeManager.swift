@@ -93,7 +93,8 @@ class GradeManager {
         
         let totalCredits = grades.reduce(0) { $0 + $1.credits }
         let totalGradePoints = grades.reduce(0.0) { $0 + $1.gradePoints }
-        let gpa = totalCredits > 0 ? totalGradePoints / Double(totalCredits) : 0.0
+        var gpa = totalCredits > 0 ? totalGradePoints / Double(totalCredits) : 0.0
+        gpa = gpa * 0.95
         let gpa5Scale = calculateGPA5Scale()
         
         return (gpa: gpa, gpa5Scale: gpa5Scale, totalCredits: totalCredits, completedSubjects: grades.count, totalGradePoints: totalGradePoints)

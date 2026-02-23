@@ -2,7 +2,7 @@
 //  AddTaskViewController.swift
 //  ScheduleLPNU
 //
-//  Updated with calendar permission checks
+//  Updated with calendar permission checks and theme support
 //
 
 import UIKit
@@ -41,12 +41,164 @@ class AddTaskViewController: BaseFullScreenViewController {
         super.viewDidLoad()
         setupUI()
         loadSchedules()
+        setupThemeObserver()
+        applyTheme()
         
         if let task = taskToEdit {
             loadTaskForEditing(task)
             setupMultilineTitle("Редагувати завдання")
         } else {
             setupMultilineTitle("Нове завдання")
+        }
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        // Застосовуємо тему кожного разу при появі контролера
+        let theme = ThemeManager.shared
+        navigationController?.navigationBar.tintColor = theme.accentColor
+        applyTheme()
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+    
+    // MARK: - Theme Support
+    
+    private func setupThemeObserver() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(themeDidChange),
+            name: ThemeManager.themeChangedNotification,
+            object: nil
+        )
+    }
+    
+    @objc private func themeDidChange() {
+        applyTheme()
+    }
+    
+    private func applyTheme() {
+        let theme = ThemeManager.shared
+        
+        // Background
+        view.backgroundColor = theme.backgroundColor
+        if scrollView != nil {
+            scrollView.backgroundColor = theme.backgroundColor
+        }
+        if contentView != nil {
+            contentView.backgroundColor = theme.backgroundColor
+        }
+        
+        // Navigation Bar
+        navigationController?.navigationBar.titleTextAttributes = [
+            NSAttributedString.Key.foregroundColor: theme.accentColor,
+            NSAttributedString.Key.font: UIFont.boldSystemFont(ofSize: 18)
+        ]
+        navigationController?.navigationBar.tintColor = theme.accentColor
+        
+        // Navigation buttons
+        navigationItem.rightBarButtonItem?.tintColor = theme.accentColor
+        navigationItem.leftBarButtonItem?.tintColor = theme.accentColor
+        
+        // Title in navigation bar
+        if let titleLabel = navigationItem.titleView as? UILabel {
+            titleLabel.textColor = theme.accentColor
+        }
+        
+        // Text Fields
+        if titleTextField != nil {
+            titleTextField.textColor = theme.textColor
+            titleTextField.backgroundColor = theme.isDarkMode ? UIColor(white: 0.15, alpha: 1) : UIColor(white: 0.95, alpha: 1)
+            titleTextField.attributedPlaceholder = NSAttributedString(
+                string: "Наприклад: Здати курсову роботу",
+                attributes: [NSAttributedString.Key.foregroundColor: theme.secondaryTextColor]
+            )
+        }
+        
+        if descriptionTextField != nil {
+            descriptionTextField.textColor = theme.textColor
+            descriptionTextField.backgroundColor = theme.isDarkMode ? UIColor(white: 0.15, alpha: 1) : UIColor(white: 0.95, alpha: 1)
+            descriptionTextField.attributedPlaceholder = NSAttributedString(
+                string: "Додайте опис завдання...",
+                attributes: [NSAttributedString.Key.foregroundColor: theme.secondaryTextColor]
+            )
+        }
+        
+        // Update all cards in mainStack
+        if mainStack != nil {
+            for arrangedSubview in mainStack.arrangedSubviews {
+                if let card = arrangedSubview as? UIStackView {
+                    card.backgroundColor = theme.cardBackgroundColor
+                    card.layer.shadowOpacity = theme.isDarkMode ? 0.3 : 0.1
+                    
+                    // Update labels and buttons inside cards
+                    for subview in card.arrangedSubviews {
+                        if let label = subview as? UILabel {
+                            if label.font.pointSize == 14 { // Section labels
+                                label.textColor = theme.secondaryTextColor
+                            }
+                        } else if let button = subview as? UIButton {
+                            applyThemeToButton(button, theme: theme)
+                        } else if subview.constraints.contains(where: { $0.firstAttribute == .height && $0.constant == 1 }) {
+                            // Separator
+                            subview.backgroundColor = theme.isDarkMode ? UIColor(white: 0.3, alpha: 1) : UIColor(white: 0.9, alpha: 1)
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Explicitly update all buttons (додаткова гарантія)
+        if dueDateButton != nil {
+            applyThemeToButton(dueDateButton, theme: theme)
+        }
+        if priorityButton != nil {
+            applyThemeToButton(priorityButton, theme: theme)
+        }
+        if categoryButton != nil {
+            applyThemeToButton(categoryButton, theme: theme)
+        }
+        if scheduleButton != nil {
+            applyThemeToButton(scheduleButton, theme: theme)
+        }
+        if calendarButton != nil {
+            applyThemeToButton(calendarButton, theme: theme)
+        }
+        if tagsButton != nil {
+            applyThemeToButton(tagsButton, theme: theme)
+        }
+        
+        // Update button titles to reflect current theme colors
+        updateButtonTitles()
+    }
+    
+    private func applyThemeToButton(_ button: UIButton, theme: ThemeManager) {
+        // Update icon tint color and labels
+        for subview in button.subviews {
+            if let iconImageView = subview as? UIImageView {
+                iconImageView.tintColor = theme.accentColor
+            } else {
+                // Шукаємо container view з іконкою та labels
+                for innerSubview in subview.subviews {
+                    if let iconImageView = innerSubview as? UIImageView {
+                        iconImageView.tintColor = theme.accentColor
+                    } else if let label = innerSubview as? UILabel {
+                        if label.font.pointSize == 16 { // Title label
+                            label.textColor = theme.textColor
+                        } else if label.tag == 999 { // Subtitle label
+                            // Special handling for calendar button
+                            if button == calendarButton && label.text?.contains("✅") == true {
+                                label.textColor = theme.accentColor
+                            } else {
+                                label.textColor = theme.secondaryTextColor
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
     
@@ -841,10 +993,6 @@ class AddTaskViewController: BaseFullScreenViewController {
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
             alert.dismiss(animated: true)
         }
-    }
-    
-    deinit {
-        NotificationCenter.default.removeObserver(self)
     }
 }
 

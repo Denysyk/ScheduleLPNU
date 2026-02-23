@@ -68,7 +68,13 @@ class TaskViewController: BaseFullScreenViewController {
         
         addButton.backgroundColor = theme.accentColor
         
-        // ДОДАЙТЕ ЦЮ ЧАСТИНУ - оновлення кольорів навігаційних кнопок
+        
+        // Navigation Bar
+        navigationController?.navigationBar.titleTextAttributes = [
+            NSAttributedString.Key.foregroundColor: theme.accentColor,
+            NSAttributedString.Key.font: UIFont.boldSystemFont(ofSize: 18)
+        ]
+        
         navigationController?.navigationBar.tintColor = theme.accentColor
         navigationItem.rightBarButtonItems?.forEach { barButton in
             barButton.tintColor = theme.accentColor
